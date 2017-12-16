@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ChatClient</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/default/easyui.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/icon.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/demo/demo.css" />
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="http://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="qwebchannel.js"></script>
+
+    <script>
+        'use strict';
+        var wsUri = "ws://localhost:12345";
+        window.loggedin = false;
+
+        window.onload = function() {
+            var socket = new WebSocket(wsUri);
+
+            socket.onclose = function() {
+                console.error("web channel closed");
+            };
+            socket.onerror = function(error) {
+                console.error("web channel error: " + error);
+            };
+            socket.onopen = function() {
+                window.channel = new QWebChannel(socket, function(channel) {
+                    console.log("channel ok");
+                });
+            }
+        }
+    </script>
+</head>
+<body>
+
+<a href="javascript:void(0)" class="easyui-linkbutton" onclick="sendCommand()">Send command</a>
+<p id="responses"></p>
+
+<script>
+
+function sendCommand() {
+    channel.objects.services.sendCommand("id command", {"un string": "str", "un nombre": 3, "un boolean": true, "un tableau": [10, "str", true]}, function(arg) {
+        $("#responses").append(JSON.stringify(arg)+"<br>");
+    });
+}
+</script>
+
+</body>
+</html>

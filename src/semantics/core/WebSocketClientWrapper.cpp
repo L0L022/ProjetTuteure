@@ -48,55 +48,37 @@
 **
 ****************************************************************************/
 
+#include <semantics/core/WebSocketClientWrapper.hpp>
+#include <semantics/core/WebSocketTransport.hpp>
 
-#ifndef CHATSERVER_H
-#define CHATSERVER_H
+#include <QWebSocketServer>
 
-#include <QObject>
-#include <QStringList>
+/*!
+    \brief Wraps connected QWebSockets clients in WebSocketTransport objects.
 
-class QTimer;
+    This code is all that is required to connect incoming WebSockets to the WebChannel. Any kind
+    of remote JavaScript client that supports WebSockets can thus receive messages and access the
+    published objects.
+*/
 
-class ChatServer : public QObject
+/*!
+    Construct the client wrapper with the given parent.
+
+    All clients connecting to the QWebSocketServer will be automatically wrapped
+    in WebSocketTransport objects.
+*/
+WebSocketClientWrapper::WebSocketClientWrapper(QWebSocketServer *server, QObject *parent)
+    : QObject(parent)
+    , m_server(server)
 {
-    Q_OBJECT
+    connect(server, &QWebSocketServer::newConnection,
+            this, &WebSocketClientWrapper::handleNewConnection);
+}
 
-    Q_PROPERTY(QStringList userList READ userList NOTIFY userListChanged)
-
-public:
-    explicit ChatServer(QObject *parent = nullptr);
-    virtual ~ChatServer();
-
-public:
-    //a user logs in with the given username
-    Q_INVOKABLE bool login(const QString &userName);
-
-    //the user logs out, will be removed from userlist immediately
-    Q_INVOKABLE bool logout(const QString &userName);
-
-    //a user sends a message to all other users
-    Q_INVOKABLE bool sendMessage(const QString &user, const QString &msg);
-
-    //response of the keep alive signal from a client.
-    // This is used to detect disconnects.
-    Q_INVOKABLE void keepAliveResponse(const QString &user);
-
-    QStringList userList() const;
-
-protected slots:
-    void sendKeepAlive();
-    void checkKeepAliveResponses();
-
-signals:
-    void newMessage(QString time, QString user, QString msg);
-    void keepAlive();
-    void userListChanged();
-    void userCountChanged();
-
-private:
-    QStringList m_userList;
-    QStringList m_stillAliveUsers;
-    QTimer *m_keepAliveCheckTimer;
-};
-
-#endif // CHATSERVER_H
+/*!
+    Wrap an incoming WebSocket connection in a WebSocketTransport object.
+*/
+void WebSocketClientWrapper::handleNewConnection()
+{
+    emit clientConnected(new WebSocketTransport(m_server->nextPendingConnection()));
+}

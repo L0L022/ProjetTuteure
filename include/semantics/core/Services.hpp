@@ -1,22 +1,17 @@
-#ifndef SERVICES_H
-#define SERVICES_H
+#ifndef SERVICES_HPP
+#define SERVICES_HPP
 
-#include <QDebug>
-#include <QTime>
-#include <QTimer>
-#include <Qvariant>
+#include <QObject>
+#include <QVariant>
 
 class Services : public QObject {
 
+    Q_OBJECT
 public:
 
-  explicit Services(Qobjet *parent = nullptr);
-  ~Services();
+  explicit Services(QObject *parent = nullptr);
 
-  QvariantMap sendCommand(std::string id, QVariantMap param);
-
-
-
+  Q_INVOKABLE QVariantMap sendCommand(const QString& id, const QVariantMap& args);
 };
 
 #endif
