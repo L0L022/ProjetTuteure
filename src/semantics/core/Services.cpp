@@ -1,12 +1,10 @@
 #include <semantics/core/Services.hpp>
+
 #include <QDebug>
 
-Services::Services(QObject *parent)
-: QObject(parent)
-{
-}
+Services::Services(QObject *parent) : QObject(parent) {}
 
-QVariantMap Services::sendCommand(const QString& id, const QVariantMap& args) {
+QVariantMap Services::sendCommand(const QString &id, const QVariantMap &args) {
   qDebug() << "id: " << id << " args: " << args;
 
   QVariantMap r;
