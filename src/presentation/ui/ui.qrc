@@ -2,5 +2,6 @@
     <qresource prefix="/ui">
         <file>index.html</file>
         <file>js/qwebchannel.js</file>
+        <file>js/vue.js</file>
     </qresource>
 </RCC>
