@@ -80,10 +80,28 @@ let formspage = {
 };
 
 let editclosedquestion = {
+    props:{
+        reponse: Object,
+        newtab: Object
+    },
   template:`<div>
-                <input type="text" value="une premiere réponse">
-                <input type="button" value="supprimer une réponse">
-            </div>`
+                <input type="button" value="Ajouter une réponse" @click="ajtrep">
+                <br>
+                
+                <div v-for="reponse in reponse">
+                    <input type="text" :value='reponse'>
+                    <input type="button" value="supprimer une réponse">
+                </div>
+                <div >
+                    <input type="text" value="une premiere réponse">
+                    <input type="button" value="supprimer une réponse">
+                </div>
+            </div>`,
+    methods:{
+        ajtrep: function(){
+            this.newtab ++
+        }
+    }
 };
 
 let editopenquestion = {
@@ -94,22 +112,28 @@ let editopenquestion = {
 
 let editquestion = {
     components: { editopenquestion, editclosedquestion },
-    data() {
-        return {
-            typequestion:""
-        }
+    props: {
+        titlequest: {type: String, default: "titre de votre question"},
+        typequest: {type: String, default: 'QO'    },
+        reponse: {type: Object, default: function(){ return } },
+        newtab: Object
+
     },
     template: `<div>
-                    <select v-model="typequestion">
+                    <select v-model="typequest" value="typequest">
                         <option value="QO">Question à choix ouvert</option>
                         <option value="QM">Question à choix multiple</option>
                         <option value="QC">Question à choix unique</option>  
                     </select>
-                    <input type="text" value="titre d'une question">
+                    
+                    <input type="text" :value="titlequest">
+                    
                     <input type="button" value="supprimer">
-                    <editopenquestion v-if="typequestion === 'QO' "></editopenquestion>
-                    <editclosedquestion v-if ="typequestion === 'QM'"></editclosedquestion>
-                    <editclosedquestion v-else-if ="typequestion === 'QC'"></editclosedquestion>
+                    
+                    <editopenquestion v-if="typequest === 'QO' " :newtab="newtab"></editopenquestion>
+                    <editclosedquestion v-if ="typequest === 'QM'" :reponse="reponse" :newtab="newtab"></editclosedquestion>
+                    <editclosedquestion v-else-if ="typequest === 'QC'" :reponse="reponse" :newtab="newtab"></editclosedquestion>
+                    <br><br>
                </div>`
 
 
@@ -118,14 +142,31 @@ let editquestion = {
 let editformspage = {
     components:{ editquestion },
     props:{
-      title: String
+      title: String,
+        tabloadform: Object
+
     },
     template: `<div>
                     <input type="text" value="title">
                     <input type="text" value="description">
-                    <editquestion></editquestion>
-                    <input type="button" value="nouvelle question">
-               </div>`
+                    <br><br>
+                    <editquestion v-if="Object.keys(this.tabloadform).length === 0"></editquestion>
+                    <div  v-for="tabloadform in tabloadform" v-else>
+                        <editquestion :titlequest="tabloadform.titlequest" :typequest="tabloadform.typequest" :reponse="tabloadform.reponse" ></editquestion>
+                    </div>
+                    
+                    <input type="button" value="nouvelle question" @click="newquest">
+                    
+                    <input type="button" value="sauver le formulaire" @click="save">
+               </div>`,
+    methods:{
+        save: function(){
+            this.$parent.$data.newtab = this.$parent.$data.tabloadform
+        },
+        newquest: function(){
+            this.$emit('ajtquest')
+        }
+    }
 };
 
 new Vue ({
@@ -158,7 +199,25 @@ new Vue ({
             }
         },
         idasupprimer: -1,
-        title: "Un titre de formulaire"
+        tabloadform:{
+            0:{
+                id: 0,
+                titlequest:"Une première question a choix ouvert charger",
+                typequest:"QO"
+            },
+            1:{
+                id: 1,
+                titlequest:"Une seconde question a choix multiple charger",
+                typequest:'QM',
+                reponse:{
+                    0: "ceci est une prémière réponse",
+                    1: "ceci est une seconde réponse"
+                }
+            }
+        },
+        newtab: {}
+
+
     },
     methods: {
         formulaire: function(){
@@ -182,6 +241,12 @@ new Vue ({
         suppression: function(){
             delete this.question.idasupprimer;
 
+        },
+        tab: function(){
+            console.log(Object.keys(this.tabloadform).length === 0)
+        },
+        ajtquest: function (){
+            this.tabloadform.push({'Object.keys(this.tabloadform).length': {id:Object.keys(this.tabloadform).length} })
         }
     }
 })

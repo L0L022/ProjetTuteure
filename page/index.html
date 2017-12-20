@@ -14,7 +14,9 @@
         <formspage :question="question"  @suppression="suppression" v-if="curentpage === 'formulaire' " ></formspage>
         {{idasupprimer}}
 
-       <editformspage :title="title" v-if="curentpage ==='newform'"></editformspage>
+       <editformspage :title="title" :tabloadform="tabloadform" :newtab="newtab" v-if="curentpage ==='newform'" @ajtquest="ajtquest"></editformspage>
+
+        <input type="button" @click="tab">
         <!-- <SubjectPage></SubjectPage>
         <EditSubjectPage></EditSubjectPage> -->
 
