@@ -35,7 +35,8 @@ let shortformspage = {
     props: {
         title:String,
         description: String,
-        id: Number
+        id: Number,
+        idasupprimer: Number
     },
     template:`<div>
                 <p>{{id}}</p>
@@ -43,28 +44,93 @@ let shortformspage = {
                 
                 <p>
                 {{ description }} 
-                <input type="button" name="supression" value="supression" >
+                <input type="button" name="supression" value="supression" @click="suppression">
                 <input type="button" name="modifcation" value="modifcation">
-                <input type="button" name="reponse" value="reponse"><br/><br/>
-                
+                <input type="button" name="reponse" value="reponse" ><br/><br/> 
                 </p>
-</div>`
+</div>`,
+    methods:{
+        suppression: function(){
+            this.$parent.$parent.$data.idasupprimer=this.id ;
+            this.$emit('suppression')
+        }
+    }
 };
 
 let formspage = {
-    props: {question: Object },
+    props: {question: Object,
+        idasupprimer: Number
+        },
     components: { shortformspage },
     template: `<div>
                 <div v-for="question in question">
-                    <shortformspage :title="question.title" :description="question.description" :id="question.id" ></shortformspage>
+                    <shortformspage @suppression="suppression" :idasupprimer="idasupprimer" :title="question.title" :description="question.description" :id="question.id" ></shortformspage>
                 </div>
-                <input type="button" name="new" value="nouveau formulaire">
-</div>`
+                <input v-on:click="newform" type="button"  value="nouveau formulaire" >
+                
+</div>`,
+    methods:{
+        suppression: function(){
+            this.$emit('suppression')
+        },
+        newform: function(){
+            this.$parent.$data.curentpage="newform"
+        }
+    }
+};
+
+let editclosedquestion = {
+  template:`<div>
+                <input type="text" value="une premiere réponse">
+                <input type="button" value="supprimer une réponse">
+            </div>`
+};
+
+let editopenquestion = {
+    template: `<div>
+                    <input type="text" value="0">
+               </div>`
+};
+
+let editquestion = {
+    components: { editopenquestion, editclosedquestion },
+    data() {
+        return {
+            typequestion:""
+        }
+    },
+    template: `<div>
+                    <select v-model="typequestion">
+                        <option value="QO">Question à choix ouvert</option>
+                        <option value="QM">Question à choix multiple</option>
+                        <option value="QC">Question à choix unique</option>  
+                    </select>
+                    <input type="text" value="titre d'une question">
+                    <input type="button" value="supprimer">
+                    <editopenquestion v-if="typequestion === 'QO' "></editopenquestion>
+                    <editclosedquestion v-if ="typequestion === 'QM'"></editclosedquestion>
+                    <editclosedquestion v-else-if ="typequestion === 'QC'"></editclosedquestion>
+               </div>`
+
+
+};
+
+let editformspage = {
+    components:{ editquestion },
+    props:{
+      title: String
+    },
+    template: `<div>
+                    <input type="text" value="title">
+                    <input type="text" value="description">
+                    <editquestion></editquestion>
+                    <input type="button" value="nouvelle question">
+               </div>`
 };
 
 new Vue ({
     el: '#app' ,
-    components: { navbar, formspage },
+    components: { navbar, formspage, editformspage },
     data: {
         curentpage: "formulaire",
         formu: "active",
@@ -75,7 +141,7 @@ new Vue ({
         description: "descriptionx formulaire",
 
         question:{
-            "0":{
+            0:{
                 id: 0,
                 title: "Le premier questionnaire",
                 description: "la description du premier questionnaire"
@@ -85,31 +151,37 @@ new Vue ({
                 title: "Le second questionnaire",
                 description: "la description du second questionnaire"
             },
-            "2":{
+            2:{
                 id: 2,
                 title: "Le troisième questionnaire",
                 description: "la description du troisième questionnaire"
             }
-        }
+        },
+        idasupprimer: -1,
+        title: "Un titre de formulaire"
     },
     methods: {
-        formulaire(){
+        formulaire: function(){
             this.formu="active",
             this.modif="",
             this.upco="",
             this.curentpage="formulaire"
         },
-        modification(){
+        modification: function(){
             this.upco = " " ,
             this.formu = " " ,
-            this.modif = "active"
-            this.curentpage="modification"
+            this.modif = "active",
+            this.curentpage = "modification"
         },
-        upcoming(){
+        upcoming: function(){
             this.formu=" ",
             this.modif=" ",
             this.upco="active",
             this.curentpage="upcoming"
+        },
+        suppression: function(){
+            delete this.question.idasupprimer;
+
         }
     }
 })
