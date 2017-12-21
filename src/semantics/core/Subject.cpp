@@ -6,7 +6,7 @@ Subject::Subject(int _subject_id, QDate _change_date)
 }
 
 Subject::Subject(){
-  
+
 }
 
 Subject::setName(QString _name){
@@ -14,7 +14,7 @@ Subject::setName(QString _name){
   setChangeDate(QDate::currentDate());
 }
 
-Subject::setValidate(){
-  validate = !validate;
+Subject::setValidate(bool _valide){
+  validate = _valide;
   setChangeDate(QDate::currentDate());
 }

@@ -22,7 +22,7 @@ public:
   inline int getIdForm(){ return id_form;};
 
   void setName(QString _name);
-  void setValidate();
+  void setValidate(bool _valide);
   inline void setChangeDate(QDate _change_date){ change_date = _change_date;};
 
 }
