@@ -19,6 +19,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), _server_thread(nu
   _server_thread->start();
   server->start();
 
+  if(QString error = Server.serverError() != "")
+    qWarning(error);
+
   auto *view = new QWebEngineView(this);
   view->setUrl(QUrl("qrc:/ui/index.html"));
   setCentralWidget(view);
