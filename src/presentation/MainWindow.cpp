@@ -14,13 +14,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), _server_thread(nu
   auto *server = new Server;
   server->moveToThread(_server_thread);
 
-  connect(this, &QObject::destroyed, server, &Server::deleteLater);
+  connect(_server_thread, &QThread::started, server, &Server::start);
+  connect(this, &MainWindow::destroyed, server, &Server::deleteLater);
 
   _server_thread->start();
-  server->start();
-
-  if(QString error = Server.serverError() != "")
-    qWarning(error);
 
   auto *view = new QWebEngineView(this);
   view->setUrl(QUrl("qrc:/ui/index.html"));
