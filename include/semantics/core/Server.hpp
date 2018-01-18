@@ -1,5 +1,5 @@
-#ifndef SERVER_HPP
-#define SERVER_HPP
+#ifndef SEMANTICS_CORE_SERVER_HPP
+#define SEMANTICS_CORE_SERVER_HPP
 
 #include <QWebSocketServer>
 
@@ -12,10 +12,10 @@ public:
   void stop();
 
 signals:
-    void error(const QString &error);
+  void error(const QString &error);
 
 private:
-    QWebSocketServer *_server;
+  QWebSocketServer *_server;
 };
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_HPP
-#define MAINWINDOW_HPP
+#ifndef PRESENTATION_MAINWINDOW_HPP
+#define PRESENTATION_MAINWINDOW_HPP
 
 #include <QMainWindow>
 #include <QThread>
@@ -8,10 +8,10 @@ class MainWindow : public QMainWindow {
   Q_OBJECT
 public:
   explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+  ~MainWindow();
 
 private:
-    QThread *_server_thread;
+  QThread *_server_thread;
 };
 
 #endif

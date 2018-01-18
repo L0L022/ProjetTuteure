@@ -1,12 +1,12 @@
-#ifndef UISERVICES_HPP
-#define UISERVICES_HPP
+#ifndef SEMANTICS_CORE_UISERVICES_HPP
+#define SEMANTICS_CORE_UISERVICES_HPP
 
 #include "Services.hpp"
 
 class UIServices : public Services {
   Q_OBJECT
 public:
-    UIServices(QObject * parent = nullptr);
+  UIServices(QObject *parent = nullptr);
 };
 
 #endif

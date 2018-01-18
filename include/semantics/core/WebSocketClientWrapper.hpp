@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com, author Milian Wolff <milian.wolff@kdab.com>
+** Copyright (C) 2016 Klarälvdalens Datakonsult AB, a KDAB Group company,
+*info@kdab.com, author Milian Wolff <milian.wolff@kdab.com>
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtWebChannel module of the Qt Toolkit.
@@ -48,8 +49,8 @@
 **
 ****************************************************************************/
 
-#ifndef WEBSOCKETCLIENTWRAPPER_H
-#define WEBSOCKETCLIENTWRAPPER_H
+#ifndef SEMANTICS_CORE_WEBSOCKETCLIENTWRAPPER_H
+#define SEMANTICS_CORE_WEBSOCKETCLIENTWRAPPER_H
 
 #include <QObject>
 
@@ -59,21 +60,20 @@ QT_BEGIN_NAMESPACE
 class QWebSocketServer;
 QT_END_NAMESPACE
 
-class WebSocketClientWrapper : public QObject
-{
-    Q_OBJECT
+class WebSocketClientWrapper : public QObject {
+  Q_OBJECT
 
 public:
-    WebSocketClientWrapper(QWebSocketServer *server, QObject *parent = nullptr);
+  WebSocketClientWrapper(QWebSocketServer *server, QObject *parent = nullptr);
 
 signals:
-    void clientConnected(WebSocketTransport *client);
+  void clientConnected(WebSocketTransport *client);
 
 private slots:
-    void handleNewConnection();
+  void handleNewConnection();
 
 private:
-    QWebSocketServer *m_server;
+  QWebSocketServer *m_server;
 };
 
 #endif // WEBSOCKETCLIENTWRAPPER_H

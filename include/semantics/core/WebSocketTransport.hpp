@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com, author Milian Wolff <milian.wolff@kdab.com>
+** Copyright (C) 2016 Klarälvdalens Datakonsult AB, a KDAB Group company,
+*info@kdab.com, author Milian Wolff <milian.wolff@kdab.com>
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtWebChannel module of the Qt Toolkit.
@@ -48,8 +49,8 @@
 **
 ****************************************************************************/
 
-#ifndef WEBSOCKETTRANSPORT_H
-#define WEBSOCKETTRANSPORT_H
+#ifndef SEMANTICS_CORE_WEBSOCKETTRANSPORT_H
+#define SEMANTICS_CORE_WEBSOCKETTRANSPORT_H
 
 #include <QWebChannelAbstractTransport>
 
@@ -57,20 +58,19 @@ QT_BEGIN_NAMESPACE
 class QWebSocket;
 QT_END_NAMESPACE
 
-class WebSocketTransport : public QWebChannelAbstractTransport
-{
-    Q_OBJECT
+class WebSocketTransport : public QWebChannelAbstractTransport {
+  Q_OBJECT
 public:
-    explicit WebSocketTransport(QWebSocket *socket);
-    virtual ~WebSocketTransport();
+  explicit WebSocketTransport(QWebSocket *socket);
+  virtual ~WebSocketTransport();
 
-    void sendMessage(const QJsonObject &message) override;
+  void sendMessage(const QJsonObject &message) override;
 
 private slots:
-    void textMessageReceived(const QString &message);
+  void textMessageReceived(const QString &message);
 
 private:
-    QWebSocket *m_socket;
+  QWebSocket *m_socket;
 };
 
 #endif // WEBSOCKETTRANSPORT_H
