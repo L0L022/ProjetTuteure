@@ -2,11 +2,16 @@
 #define MAINWINDOW_HPP
 
 #include <QMainWindow>
+#include <QThread>
 
 class MainWindow : public QMainWindow {
   Q_OBJECT
 public:
   explicit MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
+
+private:
+    QThread *_server_thread;
 };
 
 #endif

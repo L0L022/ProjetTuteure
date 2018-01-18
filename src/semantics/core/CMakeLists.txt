@@ -1,4 +1,4 @@
-set(SRC Server.cpp Services.cpp WebSocketTransport.cpp WebSocketClientWrapper.cpp)
+set(SRC Server.cpp Services.cpp UIServices.cpp WebSocketTransport.cpp WebSocketClientWrapper.cpp)
 
 FILE(GLOB HEADERS ${INCLUDE_DIR}/semantics/core/*.hpp)
 

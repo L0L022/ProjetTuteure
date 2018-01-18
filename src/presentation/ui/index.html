@@ -13,38 +13,42 @@
     <script type="text/javascript" src="http://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
     <script type="text/javascript" src="js/qwebchannel.js"></script>
     <script type="text/javascript" src="js/vue.js"></script>
-
-    <script>
-        'use strict';
-        var wsUri = "ws://localhost:12345";
-        window.loggedin = false;
-
-        window.onload = function() {
-            var socket = new WebSocket(wsUri);
-
-            socket.onclose = function() {
-                console.error("web channel closed");
-            };
-            socket.onerror = function(error) {
-                console.error("web channel error: " + error);
-            };
-            socket.onopen = function() {
-                window.channel = new QWebChannel(socket, function(channel) {
-                    console.log("channel ok");
-                });
-            }
-        }
-    </script>
 </head>
 <body>
 
+<h1>Functions</h1>
+<p id="functions"></p>
+<input type="text" id="input_function_id" value="Type function id">
 <a href="javascript:void(0)" class="easyui-linkbutton" onclick="sendCommand()">Send command</a>
 <p id="responses"></p>
 
 <script>
+    'use strict';
+    var wsUri = "ws://localhost:12345";
+    window.loggedin = false;
+
+    window.onload = function() {
+        var socket = new WebSocket(wsUri);
+
+        socket.onclose = function() {
+            console.error("web channel closed");
+        };
+        socket.onerror = function(error) {
+            console.error("web channel error: " + error);
+        };
+        socket.onopen = function() {
+            window.channel = new QWebChannel(socket, function(channel) {
+                console.log("channel ok");
+
+                channel.objects.services.functions(function(arg) {
+                    $("#functions").append(JSON.stringify(arg)+"<br>");
+                });
+            });
+        }
+    }
 
 function sendCommand() {
-    channel.objects.services.sendCommand("id command", {"un string": "str", "un nombre": 3, "un boolean": true, "un tableau": [10, "str", true]}, function(arg) {
+    channel.objects.services.run($("#input_function_id").val(), {"id": 10, "un string": "str", "un nombre": 3, "un boolean": true, "un tableau": [10, "str", true]}, function(arg) {
         $("#responses").append(JSON.stringify(arg)+"<br>");
     });
 }

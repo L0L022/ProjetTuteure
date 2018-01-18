@@ -4,15 +4,28 @@
 
 #include <QWebEngineView>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), _server_thread(nullptr) {
   Q_INIT_RESOURCE(ui);
 
   setWindowTitle(QStringLiteral("ProjetTuteure"));
   resize(700, 600);
 
-  auto *server = new Server(this);
+  _server_thread = new QThread(this);
+  auto *server = new Server;
+  server->moveToThread(_server_thread);
+
+  connect(this, &QObject::destroyed, server, &Server::deleteLater);
+
+  _server_thread->start();
+  server->start();
 
   auto *view = new QWebEngineView(this);
   view->setUrl(QUrl("qrc:/ui/index.html"));
   setCentralWidget(view);
+}
+
+MainWindow::~MainWindow()
+{
+    _server_thread->quit();
+    _server_thread->wait();
 }
