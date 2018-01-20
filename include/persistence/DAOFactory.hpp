@@ -18,7 +18,8 @@ public:
   virtual DAO<Question> *question() = 0;
   virtual DAO<Choice> *choice() = 0;
   virtual DAO<Subject> *subject() = 0;
-  virtual DAO<Answer> *answer() = 0;
+  virtual DAO<OpenedAnswer> *openedAnswer() = 0;
+  virtual DAO<ClosedAnswer> *closedAnswer() = 0;
 };
 
 } // namespace persistence

@@ -4,6 +4,7 @@
 #include <QDateTime>
 #include <QString>
 #include <QStringList>
+#include <QVariant>
 
 namespace persistence {
 
@@ -11,6 +12,9 @@ class Form {
 public:
   static const QString table;
   static const QStringList columns;
+
+  Form() = default;
+  Form(const QVariantMap &v);
 
   int id;
   QString name;
@@ -24,11 +28,14 @@ public:
   static const QString table;
   static const QStringList columns;
 
+  Question() = default;
+  Question(const QVariantMap &v);
+
   int id;
-  int id_form;
+  int form;
   QString title;
   QString type;
-  int nbWords;
+  int nb_words;
   QDateTime modification_date;
 };
 
@@ -37,8 +44,11 @@ public:
   static const QString table;
   static const QStringList columns;
 
+  Choice() = default;
+  Choice(const QVariantMap &v);
+
   int id;
-  int id_question;
+  int question;
   QString label;
   QDateTime modification_date;
 };
@@ -48,20 +58,39 @@ public:
   static const QString table;
   static const QStringList columns;
 
+  Subject() = default;
+  Subject(const QVariantMap &v);
+
   int id;
-  int id_form;
-  bool isValid;
+  int form;
+  bool is_valid;
   QDateTime modification_date;
 };
 
-class Answer {
+class OpenedAnswer {
 public:
   static const QString table;
   static const QStringList columns;
 
-  int id_subject;
-  int id_question;
+  OpenedAnswer() = default;
+  OpenedAnswer(const QVariantMap &v);
+
+  int subject;
+  int question;
   QString words;
+  QDateTime modification_date;
+};
+
+class ClosedAnswer {
+public:
+  static const QString table;
+  static const QStringList columns;
+
+  ClosedAnswer() = default;
+  ClosedAnswer(const QVariantMap &v);
+
+  int subject;
+  int choice;
   QDateTime modification_date;
 };
 

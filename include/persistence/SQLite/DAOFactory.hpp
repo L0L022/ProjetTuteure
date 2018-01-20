@@ -15,7 +15,11 @@ public:
   persistence::DAO<Question> *question();
   persistence::DAO<Choice> *choice();
   persistence::DAO<Subject> *subject();
-  persistence::DAO<Answer> *answer();
+  persistence::DAO<OpenedAnswer> *openedAnswer();
+  persistence::DAO<ClosedAnswer> *closedAnswer();
+
+private:
+  void create_table();
 };
 
 } // namespace SQLite
