@@ -2,6 +2,7 @@
 #define SEMANTICS_CORE_UISERVICES_HPP
 
 #include "Services.hpp"
+#include "Data.hpp"
 
 class UIServices : public Services {
   Q_OBJECT
