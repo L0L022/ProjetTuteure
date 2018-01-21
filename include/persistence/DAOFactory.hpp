@@ -11,6 +11,7 @@ public:
   enum Drivers { SQLite };
 
   DAOFactory() = default;
+  virtual ~DAOFactory() = default;
 
   static DAOFactory *make(const Drivers d);
 

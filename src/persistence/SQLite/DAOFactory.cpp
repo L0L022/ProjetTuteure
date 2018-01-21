@@ -17,6 +17,13 @@ SQLite::DAOFactory::DAOFactory() {
   create_table();
 }
 
+SQLite::DAOFactory::~DAOFactory() {
+  if (QSqlDatabase::database().isValid()) {
+    QString name = QSqlDatabase::database().connectionName();
+    QSqlDatabase::removeDatabase(name);
+  }
+}
+
 DAO<Form> *SQLite::DAOFactory::form() { return new SQLite::DAO<Form>(); }
 DAO<Question> *SQLite::DAOFactory::question() {
   return new SQLite::DAO<Question>();

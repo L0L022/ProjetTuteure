@@ -10,6 +10,7 @@ namespace SQLite {
 class DAOFactory : public persistence::DAOFactory {
 public:
   DAOFactory();
+  ~DAOFactory();
 
   persistence::DAO<Form> *form();
   persistence::DAO<Question> *question();

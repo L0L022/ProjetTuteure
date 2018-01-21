@@ -2,6 +2,7 @@
 #define PERSISTENCE_SQLITE_DAO_HPP
 
 #include "../DAO.hpp"
+#include "Exceptions.hpp"
 
 #include <QDateTime>
 #include <QDebug>
@@ -20,10 +21,10 @@ struct ColumnInfo {
 
 template <typename T> class DAO : public persistence::DAO<T> {
 public:
-  QVector<T> select(const QVariantMap &);
-  bool insert(const QVariantMap &);
-  bool update(const QVariantMap &);
-  bool remove(const QVariantMap &);
+  QVector<T> select(const QVariantMap &where);
+  QVariant insert(const QVariantMap &values);
+  void update(const QVariantMap &set, const QVariantMap &where);
+  void remove(const QVariantMap &where);
 
 private:
   static const QMap<QString, QString> tables;
@@ -31,6 +32,11 @@ private:
 
   static QVariant exportV(const QVariant &v, const ColumnType t);
   static QVariant importV(const QVariant &v, const ColumnType t);
+  static QString makeWhere(const QVariantMap &v);
+  static void bindValues(QSqlQuery &query, const QVariantMap &v,
+                         const QString &prefix = QString());
+  static void prepareQuery(QSqlQuery &query, const QString &sql);
+  static void execQuery(QSqlQuery &query);
 };
 
 template <typename T>
@@ -104,12 +110,49 @@ QVariant DAO<T>::importV(const QVariant &v, const ColumnType t) {
   }
 }
 
-template <typename T> QVector<T> DAO<T>::select(const QVariantMap &v) {
+template <typename T> QString DAO<T>::makeWhere(const QVariantMap &v) {
+  QString query;
+  if (!v.empty()) {
+    query += "WHERE ";
+    for (auto it = v.begin(); it != v.end(); ++it) {
+      query += QString("`%1`.`%2` = :where_%3")
+                   .arg(tables[T::table], columns[T::table][it.key()].name,
+                        it.key());
+    }
+  }
+  return query;
+}
+
+template <typename T>
+void DAO<T>::bindValues(QSqlQuery &query, const QVariantMap &v,
+                        const QString &prefix) {
+  auto t_columns = columns[T::table];
+  for (auto it = v.begin(); it != v.end(); ++it) {
+    query.bindValue(QString(":") + prefix + it.key(),
+                    importV(it.value(), t_columns[it.key()].type));
+  }
+}
+
+template <typename T>
+void DAO<T>::prepareQuery(QSqlQuery &query, const QString &sql) {
+  if (!query.prepare(sql)) {
+    throw QueryPrepareException(sql);
+  }
+}
+
+template <typename T> void DAO<T>::execQuery(QSqlQuery &query) {
+  query.exec();
+  if (query.lastError().isValid()) {
+    throw SQLErrorException(query.lastQuery(), query.lastError());
+  }
+}
+
+template <typename T> QVector<T> DAO<T>::select(const QVariantMap &where) {
   QString table = T::table;
   QString real_table = tables[table];
-  QString query_str("SELECT ");
   auto t_columns = columns[table];
 
+  QString query_str("SELECT ");
   for (auto it = t_columns.begin(); it != t_columns.end(); ++it) {
     query_str += QString("`%1`.`%2` AS `%3`,")
                      .arg(real_table, it.value().name, it.key());
@@ -118,20 +161,14 @@ template <typename T> QVector<T> DAO<T>::select(const QVariantMap &v) {
 
   query_str += QString("FROM `%1`").arg(real_table);
 
-  if (!v.empty()) {
-    query_str += "WHERE ";
-    for (auto it = v.begin(); it != v.end(); ++it) {
-      query_str += QString("`%1`.`%2` = :%3")
-                       .arg(real_table, t_columns[it.key()].name, it.key());
-    }
-  }
+  query_str += makeWhere(where);
+
+  qDebug() << query_str;
 
   QSqlQuery query;
-  query.prepare(query_str);
-  for (auto it = v.begin(); it != v.end(); ++it) {
-    query.bindValue(QString(":") + it.key(), it.value());
-  }
-  query.exec();
+  prepareQuery(query, query_str);
+  bindValues(query, where, "where_");
+  execQuery(query);
 
   QVector<T> result;
   QVariantMap values;
@@ -145,16 +182,59 @@ template <typename T> QVector<T> DAO<T>::select(const QVariantMap &v) {
   return result;
 }
 
-template <typename T> bool DAO<T>::insert(const QVariantMap &v) {
-  return false;
+template <typename T> QVariant DAO<T>::insert(const QVariantMap &values) {
+  QString query_str = QString("INSERT INTO %1 (").arg(tables[T::table]);
+  auto t_columns = columns[T::table];
+  QString v(" VALUES (");
+  for (auto it = values.begin(); it != values.end(); ++it) {
+    query_str += t_columns[it.key()].name + ',';
+    v += QString(":v_%1,").arg(it.key());
+  }
+  query_str.back() = ')';
+  v.back() = ')';
+  query_str += v;
+
+  qDebug() << query_str;
+
+  QSqlQuery query;
+  prepareQuery(query, query_str);
+  bindValues(query, values, "v_");
+  execQuery(query);
+
+  return query.lastInsertId();
 }
 
-template <typename T> bool DAO<T>::update(const QVariantMap &v) {
-  return false;
+template <typename T>
+void DAO<T>::update(const QVariantMap &set, const QVariantMap &where) {
+  auto t_columns = columns[T::table];
+  QString query_str = QString("UPDATE %1 SET ").arg(tables[T::table]);
+  for (auto it = set.begin(); it != set.end(); ++it) {
+    query_str +=
+        QString("`%1` = :set_%2,").arg(t_columns[it.key()].name, it.key());
+  }
+  query_str.remove(query_str.size() - 1, 1);
+
+  query_str += makeWhere(where);
+
+  qDebug() << query_str;
+
+  QSqlQuery query;
+  prepareQuery(query, query_str);
+  bindValues(query, set, "set_");
+  bindValues(query, where, "where_");
+  execQuery(query);
 }
 
-template <typename T> bool DAO<T>::remove(const QVariantMap &v) {
-  return false;
+template <typename T> void DAO<T>::remove(const QVariantMap &where) {
+  QString query_str = QString("DELETE FROM %1 ").arg(tables[T::table]);
+  query_str += makeWhere(where);
+
+  qDebug() << query_str;
+
+  QSqlQuery query;
+  prepareQuery(query, query_str);
+  bindValues(query, where, "where_");
+  execQuery(query);
 }
 
 } // namespace SQLite
