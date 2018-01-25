@@ -4,6 +4,7 @@
 #include "../Exception.hpp"
 
 #include <QtSql/QSqlError>
+#include <QtSql/QSqlQuery>
 
 namespace persistence {
 namespace SQLite {
@@ -38,6 +39,9 @@ public:
         .arg(sqlError.text(), query);
   }
 };
+
+void prepareQuery(QSqlQuery &query, const QString &sql);
+void execQuery(QSqlQuery &query);
 
 } // namespace SQLite
 } // namespace persistence

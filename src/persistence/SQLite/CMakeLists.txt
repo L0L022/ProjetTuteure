@@ -1,4 +1,4 @@
-set(SRC DAO.cpp DAOFactory.cpp)
+set(SRC DAO.cpp DAOFactory.cpp Exceptions.cpp)
 set(RESSOURCES sqlite.qrc)
 
 FILE(GLOB HEADERS ${INCLUDE_DIR}/persistence/SQLite/*.hpp)

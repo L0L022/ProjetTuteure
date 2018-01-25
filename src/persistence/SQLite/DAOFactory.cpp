@@ -6,15 +6,15 @@
 
 using namespace persistence;
 
-inline void init_ressource() { Q_INIT_RESOURCE(sqlite); }
-
-SQLite::DAOFactory::DAOFactory() {
-  init_ressource();
-  // mettre dans un fonction
+SQLite::DAOFactory::DAOFactory(const QString &name) {
   QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-  db.setDatabaseName(":memory:");
-  bool ok = db.open();
-  create_table();
+  db.setDatabaseName(name);
+  if (!db.open())
+    throw SQLErrorException("Connect to the db.", db.lastError());
+
+  QSqlQuery query;
+  prepareQuery(query, "PRAGMA foreign_keys = ON;");
+  execQuery(query);
 }
 
 SQLite::DAOFactory::~DAOFactory() {
@@ -25,34 +25,21 @@ SQLite::DAOFactory::~DAOFactory() {
 }
 
 DAO<Form> *SQLite::DAOFactory::form() { return new SQLite::DAO<Form>(); }
+
 DAO<Question> *SQLite::DAOFactory::question() {
   return new SQLite::DAO<Question>();
 }
+
 DAO<Choice> *SQLite::DAOFactory::choice() { return new SQLite::DAO<Choice>(); }
+
 DAO<Subject> *SQLite::DAOFactory::subject() {
   return new SQLite::DAO<Subject>();
 }
+
 DAO<OpenedAnswer> *SQLite::DAOFactory::openedAnswer() {
   return new SQLite::DAO<OpenedAnswer>();
 }
+
 DAO<ClosedAnswer> *SQLite::DAOFactory::closedAnswer() {
   return new SQLite::DAO<ClosedAnswer>();
-}
-
-void SQLite::DAOFactory::create_table() {
-  init_ressource();
-  QFile file(":/sqlite/init.sql");
-
-  if (!file.open(QFile::ReadOnly | QFile::Text)) {
-    qDebug() << " Could not open the file for reading";
-    return;
-  }
-
-  QString commands = file.readAll();
-
-  for (const QString &command : commands.split(';')) {
-    QSqlQuery query;
-    query.prepare(command);
-    query.exec();
-  }
 }

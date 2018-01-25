@@ -14,12 +14,10 @@ public:
   Tests(QObject *parent = nullptr);
 
 private slots:
-  void select_data();
-  void select();
-  void insert_data();
-  void insert();
-  void update_data();
-  void update();
+  void search_data();
+  void search();
+  void save_data();
+  void save();
   void remove_data();
   void remove();
 };

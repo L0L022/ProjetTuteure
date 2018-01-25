@@ -9,7 +9,7 @@ namespace SQLite {
 
 class DAOFactory : public persistence::DAOFactory {
 public:
-  DAOFactory();
+  DAOFactory(const QString &name = ":memory:");
   ~DAOFactory();
 
   persistence::DAO<Form> *form();
@@ -18,9 +18,6 @@ public:
   persistence::DAO<Subject> *subject();
   persistence::DAO<OpenedAnswer> *openedAnswer();
   persistence::DAO<ClosedAnswer> *closedAnswer();
-
-private:
-  void create_table();
 };
 
 } // namespace SQLite

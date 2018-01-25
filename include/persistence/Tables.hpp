@@ -16,6 +16,8 @@ public:
   Form() = default;
   Form(const QVariantMap &v);
 
+  QVariantMap toMap() const;
+
   int id;
   QString name;
   QString description;
@@ -30,6 +32,8 @@ public:
 
   Question() = default;
   Question(const QVariantMap &v);
+
+  QVariantMap toMap() const;
 
   int id;
   int form;
@@ -47,6 +51,8 @@ public:
   Choice() = default;
   Choice(const QVariantMap &v);
 
+  QVariantMap toMap() const;
+
   int id;
   int question;
   QString label;
@@ -60,6 +66,8 @@ public:
 
   Subject() = default;
   Subject(const QVariantMap &v);
+
+  QVariantMap toMap() const;
 
   int id;
   int form;
@@ -75,6 +83,8 @@ public:
   OpenedAnswer() = default;
   OpenedAnswer(const QVariantMap &v);
 
+  QVariantMap toMap() const;
+
   int subject;
   int question;
   QString words;
@@ -88,6 +98,8 @@ public:
 
   ClosedAnswer() = default;
   ClosedAnswer(const QVariantMap &v);
+
+  QVariantMap toMap() const;
 
   int subject;
   int choice;
