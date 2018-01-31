@@ -1,6 +1,16 @@
-add_subdirectory(semantics)
-add_subdirectory(presentation)
-add_subdirectory(persistence)
+if (BUILD_PERSISTENCE)
+    add_subdirectory(persistence)
+endif()
 
-add_executable(app main.cpp)
-target_link_libraries(app lib_presentation)
+if (BUILD_SEMANTICS)
+    add_subdirectory(semantics)
+endif()
+
+if (BUILD_PRESENTATION)
+    add_subdirectory(presentation)
+endif()
+
+if (BUILD_APP)
+    add_executable(app main.cpp)
+    target_link_libraries(app lib_presentation)
+endif()
