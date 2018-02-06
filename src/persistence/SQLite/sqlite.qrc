@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/sqlite">
-        <file>init.sql</file>
+        <file>init_db.sql</file>
+        <file>init_tests.sql</file>
     </qresource>
 </RCC>
