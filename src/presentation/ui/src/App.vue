@@ -1,8 +1,10 @@
 <template>
-  <div id="app">
-    <img src="./assets/logo.png">
-    <router-view/>
-  </div>
+ <el-container id="app">
+  <el-main>
+   <el-button @click="$router.back()">Retour</el-button>
+   <router-view/>
+  </el-main>
+ </el-container>
 </template>
 
 <script>
