@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), _server_thread(nu
   _server_thread->start();
 
   auto *view = new QWebEngineView(this);
-  view->setUrl(QUrl("qrc:/ui/index.html"));
+  view->setUrl(QUrl("qrc:/index.html"));
   setCentralWidget(view);
 }
 
