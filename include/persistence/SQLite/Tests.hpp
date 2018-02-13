@@ -30,8 +30,6 @@ private slots:
   void remove_data();
   void remove();
 
-  void run_sql(const QString &fileName);
-
 private:
   QScopedPointer<DAOFactory> _factory;
 };

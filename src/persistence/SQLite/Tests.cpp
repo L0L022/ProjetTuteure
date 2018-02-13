@@ -1,11 +1,10 @@
 #include <persistence/SQLite/Tests.hpp>
 
-#include <persistence/DAOFactory.hpp>
+#include <persistence/SQLite/DAO.hpp>
 #include <persistence/Exception.hpp>
 
-#include <QDebug>
-#include <QFile>
 #include <QDateTime>
+#include <QDebug>
 
 using namespace persistence::SQLite;
 
@@ -16,9 +15,13 @@ Tests::Tests(QObject *parent) : QObject(parent) { init_ressource(); }
 void Tests::initTestCase() {}
 
 void Tests::init() {
-  _factory.reset(new DAOFactory);
-  run_sql(":/sqlite/init_db.sql");
-  run_sql(":/sqlite/init_tests.sql");
+    try {
+        _factory.reset(new DAOFactory);
+        QVERIFY(_factory != nullptr);
+        runSQLFromFile(":/sqlite/init_tests.sql");
+    } catch (Exception &e) {
+      QFAIL(e.text().toUtf8().constData());
+    }
 }
 
 void Tests::cleanup() { _factory.reset(); }
@@ -93,41 +96,24 @@ void Tests::save() {
 }
 
 void Tests::remove_data() {
-    QTest::addColumn<QVariantMap>("where");
+  QTest::addColumn<QVariantMap>("where");
 
-    QTest::newRow("Question 1") << QVariantMap{{"id", 1}};
-    QTest::newRow("Question 2") << QVariantMap{{"id", 2}};
-    QTest::newRow("Question 3") << QVariantMap{{"id", 3}};
-    QTest::newRow("Question 7") << QVariantMap{{"id", 7}};
+  QTest::newRow("Question 1") << QVariantMap{{"id", 1}};
+  QTest::newRow("Question 2") << QVariantMap{{"id", 2}};
+  QTest::newRow("Question 3") << QVariantMap{{"id", 3}};
+  QTest::newRow("Question 7") << QVariantMap{{"id", 7}};
 }
 
 void Tests::remove() {
-    QFETCH(QVariantMap, where);
+  QFETCH(QVariantMap, where);
 
-    QScopedPointer<persistence::DAO<Question>> question(_factory->question());
-    try {
-      question->remove(where);
-      auto results = question->search(where);
-      QCOMPARE(results.size(), 0);
-    } catch (Exception &e) {
-      QFAIL(e.text().toUtf8().constData());
-    }
-}
-
-void Tests::run_sql(const QString &fileName) {
-  QFile file(fileName);
-
-  if (!file.open(QFile::ReadOnly | QFile::Text)) {
-    qDebug() << " Could not open the file for reading";
-    return;
-  }
-
-  QString commands = file.readAll();
-
-  for (const QString &command : commands.split(';')) {
-    QSqlQuery query;
-    query.prepare(command);
-    query.exec();
+  QScopedPointer<persistence::DAO<Question>> question(_factory->question());
+  try {
+    question->remove(where);
+    auto results = question->search(where);
+    QCOMPARE(results.size(), 0);
+  } catch (Exception &e) {
+    QFAIL(e.text().toUtf8().constData());
   }
 }
 

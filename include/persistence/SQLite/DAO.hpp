@@ -22,14 +22,11 @@ struct ColumnInfo {
 
 struct TableInfo {
   QString name;
-  QString create;
   QMap<QString, ColumnInfo> columns;
 };
 
 template <typename T> class DAO : public persistence::DAO<T> {
 public:
-  DAO();
-
   QVector<T> search(const QVariantMap &where = QVariantMap());
   void save(const T &object);
   void remove(const QVariantMap &where = QVariantMap());
@@ -45,11 +42,7 @@ private:
                          const QString &prefix = QString());
 };
 
-template <typename T> DAO<T>::DAO() {
-  QSqlQuery query;
-  prepareQuery(query, table.create);
-  execQuery(query);
-}
+void runSQLFromFile(const QString &fileName);
 
 template <typename T>
 QVariant DAO<T>::exportV(const QVariant &v, const ColumnType t) {
@@ -75,7 +68,7 @@ QVariant DAO<T>::exportV(const QVariant &v, const ColumnType t) {
     else
       throw QVariantConvertException(v, "int");
   default:
-      return QVariant();
+    return QVariant();
   }
 }
 
@@ -103,7 +96,7 @@ QVariant DAO<T>::importV(const QVariant &v, const ColumnType t) {
     else
       throw QVariantConvertException(v, "bool");
   default:
-      return QVariant();
+    return QVariant();
   }
 }
 
@@ -115,7 +108,7 @@ template <typename T> QString DAO<T>::makeWhere(const QVariantMap &v) {
       query += QString("`%1`.`%2` = :where_%3")
                    .arg(table.name, table.columns[it.key()].name, it.key());
       if (++it != v.end())
-          query += " AND ";
+        query += " AND ";
     }
   }
   return query;
@@ -133,18 +126,18 @@ void DAO<T>::bindValues(QSqlQuery &query, const QVariantMap &v,
 template <typename T> QVector<T> DAO<T>::search(const QVariantMap &where) {
   QString query_str("SELECT ");
   for (auto it = table.columns.begin(); it != table.columns.end();) {
-    query_str += QString("`%1`.`%2` AS `%3`")
-                     .arg(table.name, it.value().name, it.key());
+    query_str +=
+        QString("`%1`.`%2` AS `%3`").arg(table.name, it.value().name, it.key());
     if (++it != table.columns.end())
-        query_str += ", ";
+      query_str += ", ";
   }
-  //query_str.remove(query_str.size() - 1, 1);
+  // query_str.remove(query_str.size() - 1, 1);
 
   query_str += QString(" FROM `%1` ").arg(table.name);
 
   query_str += makeWhere(where);
 
-//  qDebug() << query_str;
+  //  qDebug() << query_str;
 
   QSqlQuery query;
   prepareQuery(query, query_str);
@@ -175,7 +168,7 @@ template <typename T> void DAO<T>::save(const T &object) {
   v.back() = ')';
   query_str += v;
 
-//  qDebug() << query_str;
+  //  qDebug() << query_str;
 
   QSqlQuery query;
   prepareQuery(query, query_str);
@@ -187,7 +180,7 @@ template <typename T> void DAO<T>::remove(const QVariantMap &where) {
   QString query_str = QString("DELETE FROM %1 ").arg(table.name);
   query_str += makeWhere(where);
 
-//  qDebug() << query_str;
+  //  qDebug() << query_str;
 
   QSqlQuery query;
   prepareQuery(query, query_str);

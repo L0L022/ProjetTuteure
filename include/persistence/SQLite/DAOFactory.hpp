@@ -1,8 +1,8 @@
 #ifndef PERSISTENCE_SQLITE_DAOFACTORY_HPP
 #define PERSISTENCE_SQLITE_DAOFACTORY_HPP
 
+#include "../DAO.hpp"
 #include "../DAOFactory.hpp"
-#include "DAO.hpp"
 
 namespace persistence {
 namespace SQLite {

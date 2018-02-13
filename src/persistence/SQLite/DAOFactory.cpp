@@ -1,10 +1,14 @@
 #include <persistence/SQLite/DAOFactory.hpp>
 
+#include <persistence/SQLite/DAO.hpp>
+
 #include <QFile>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 
 using namespace persistence;
+
+inline void init_ressource() { Q_INIT_RESOURCE(sqlite); }
 
 SQLite::DAOFactory::DAOFactory(const QString &name) {
   QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
@@ -12,9 +16,8 @@ SQLite::DAOFactory::DAOFactory(const QString &name) {
   if (!db.open())
     throw SQLErrorException("Connect to the db.", db.lastError());
 
-  QSqlQuery query;
-  prepareQuery(query, "PRAGMA foreign_keys = ON;");
-  execQuery(query);
+  init_ressource();
+  SQLite::runSQLFromFile(":/sqlite/init_db.sql");
 }
 
 SQLite::DAOFactory::~DAOFactory() {
