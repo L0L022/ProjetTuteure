@@ -24,6 +24,11 @@ if (BUILD_PRESENTATION)
     find_package(Qt5 ${QT_MINIMUM_VERSION} COMPONENTS Core WebChannel WebSockets WebEngineWidgets REQUIRED)
 endif()
 
+if (BUILD_SEMANTICS)
+    find_package(Boost 1.66 REQUIRED)
+    include_directories(${Boost_INCLUDE_DIR})
+endif()
+
 if (BUILD_PERSISTENCE_SQLITE)
     if (NOT BUILD_PERSISTENCE)
         message(FATAL_ERROR "You have to build persistence in order to build persistence_sqlite.")
