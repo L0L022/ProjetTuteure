@@ -9,6 +9,9 @@
 
 #include <boost/ptr_container/ptr_map.hpp>
 
+namespace semantics {
+namespace core {
+
 class Data : boost::noncopyable {
 public:
   Data(const QDateTime &modification_date = QDateTime::currentDateTime());
@@ -44,7 +47,7 @@ private:
   QDateTime _modification_date;
 };
 
-inline Data *new_clone(const Data &d);
+inline Data *new_clone(const Data &d)  { return d.clone(); }
 
 class IdData : public Data {
 public:
@@ -61,11 +64,13 @@ protected:
   virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
-  virtual Data *do_clone() const { return new IdData(*this); }
+  virtual Data *do_clone() const;
 
 private:
   const Id _id;
 };
+
+inline IdData *new_clone(const IdData &d)  { return dynamic_cast<IdData*>(d.clone()); }
 
 class IdDataMapSharedData {
 public:
@@ -97,12 +102,17 @@ public:
   using const_iterator = typename Map::const_iterator;
 
   IdDataMap(const SharedDataPtr &sharedData = std::make_shared<SharedData>())
-      : _sharedData(sharedData) {}
+      : _sharedData(sharedData) {
+      if (_sharedData == nullptr)
+          ; // exception
+  }
 
-  void insert(std::auto_ptr<T> d) {
-    auto r = _map.insert(d->id(), d);
+  void insert(std::unique_ptr<T> d) {
+    // check d -> exception
+      Id id = d->id();
+    auto r = _map.insert(id, std::auto_ptr<T>(d.release()));
     if (r.second)
-      _sharedData->trySetMaxId(d->id() + 1);
+      _sharedData->trySetMaxId(id + 1);
     else
       ; // exception
   }
@@ -171,7 +181,7 @@ void fromVariantMap(const QVariantMap &src, IdDataMap<T> &dest) {
     if (i != dest.end())
       i->second->assignFromMap(value);
     else
-      dest.insert(std::auto_ptr<T>(T::fromMap(value)));
+      dest.insert(std::unique_ptr<T>(T::fromMap(value)));
   }
 }
 
@@ -185,22 +195,24 @@ public:
   inline QString &title() { return _title; }
   void setTitle(const QString &title);
 
-  static Question *fromMap(const QVariantMap &m) { return new Question(m); }
+  static Question *fromMap(const QVariantMap &m);
 
 protected:
   virtual QVariantMap do_toMap() const;
   virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
-  virtual Data *do_clone() const { return new Question(*this); }
+  virtual Data *do_clone() const;
 
 private:
   QString _title;
 };
 
+inline Question *new_clone(const Question &q)  { return dynamic_cast<Question*>(q.clone()); }
+
 class OpenedQuestion : public Question {
 public:
-  using Size = quint64;
+  using Size = uint;
 
   OpenedQuestion(const Id id, const QDateTime &modification_date =
                                   QDateTime::currentDateTime());
@@ -208,9 +220,7 @@ public:
   inline Size nbWords() const { return _nbWords; }
   void setNbWords(const Size nbWords);
 
-  static OpenedQuestion *fromMap(const QVariantMap &m) {
-    return new OpenedQuestion(m);
-  }
+  static OpenedQuestion *fromMap(const QVariantMap &m);
 
 protected:
   OpenedQuestion(const QVariantMap &m);
@@ -218,11 +228,13 @@ protected:
   virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
-  virtual Data *do_clone() const { return new OpenedQuestion(*this); }
+  virtual Data *do_clone() const;
 
 private:
   Size _nbWords;
 };
+
+inline OpenedQuestion *new_clone(const OpenedQuestion &q)  { return dynamic_cast<OpenedQuestion*>(q.clone()); }
 
 class Choice : public IdData {
 public:
@@ -232,7 +244,7 @@ public:
   inline const QString &label() const { return _label; }
   void setLabel(const QString &label);
 
-  static Choice *fromMap(const QVariantMap &m) { return new Choice(m); }
+  static Choice *fromMap(const QVariantMap &m);
 
 protected:
   Choice(const QVariantMap &m);
@@ -240,11 +252,13 @@ protected:
   virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
-  virtual Data *do_clone() const { return new Choice(*this); }
+  virtual Data *do_clone() const;
 
 private:
   QString _label;
 };
+
+inline Choice *new_clone(const Choice &c)  { return dynamic_cast<Choice*>(c.clone()); }
 
 class ClosedQuestion : public Question {
 public:
@@ -264,9 +278,7 @@ public:
   inline const Choices &choices() const { return _choices; }
   void setChoices(const Choices &choices);
 
-  static ClosedQuestion *fromMap(const QVariantMap &m) {
-    return new ClosedQuestion(m);
-  }
+  static ClosedQuestion *fromMap(const QVariantMap &m);
 
 protected:
   ClosedQuestion(const QVariantMap &m);
@@ -274,14 +286,14 @@ protected:
   virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
-  virtual Data *do_clone() const { return new ClosedQuestion(*this); }
+  virtual Data *do_clone() const;
 
 private:
   Type _type;
   Choices _choices;
 };
 
-Q_DECLARE_METATYPE(ClosedQuestion::Type)
+inline ClosedQuestion *new_clone(const ClosedQuestion &q)  { return dynamic_cast<ClosedQuestion*>(q.clone()); }
 
 class Answer : public Data {
 public:
@@ -295,20 +307,22 @@ protected:
 
 public:
   inline Id question() const { return _question; }
-  virtual bool isValid(const Questions &questions) const;
+  virtual bool isValid(const Questions &questions) const = 0;
 
-  static Answer *fromMap(const QVariantMap &m) { return new Answer(m); }
+  static Answer *fromMap(const QVariantMap &m);
 
 protected:
   virtual QVariantMap do_toMap() const;
   virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
-  virtual Data *do_clone() const { return new Answer(*this); }
+  virtual Data *do_clone() const = 0;
 
 private:
   const Id _question;
 };
+
+inline Answer *new_clone(const Answer &a)  { return dynamic_cast<Answer*>(a.clone()); }
 
 class OpenedAnswer : public Answer {
 public:
@@ -320,9 +334,8 @@ public:
 
   bool isValid(const Questions &questions) const;
 
-  static OpenedAnswer *fromMap(const QVariantMap &m) {
-    return new OpenedAnswer(m);
-  }
+  static OpenedAnswer *fromMap(const QVariantMap &m);
+  static bool validMap(const QVariantMap &m);
 
 protected:
   OpenedAnswer(const QVariantMap &m);
@@ -330,11 +343,13 @@ protected:
   virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
-  virtual Data *do_clone() const { return new OpenedAnswer(*this); }
+  virtual Data *do_clone() const;
 
 private:
   QStringList _words;
 };
+
+inline OpenedAnswer *new_clone(const OpenedAnswer &a)  { return dynamic_cast<OpenedAnswer*>(a.clone()); }
 
 class ClosedAnswer : public Answer {
 public:
@@ -348,9 +363,8 @@ public:
 
   bool isValid(const Questions &questions) const;
 
-  static ClosedAnswer *fromMap(const QVariantMap &m) {
-    return new ClosedAnswer(m);
-  }
+  static ClosedAnswer *fromMap(const QVariantMap &m);
+  static bool validMap(const QVariantMap &m);
 
 protected:
   ClosedAnswer(const QVariantMap &m);
@@ -358,11 +372,13 @@ protected:
   virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
-  virtual Data *do_clone() const { return new ClosedAnswer(*this); }
+  virtual Data *do_clone() const;
 
 private:
   Choices _choices;
 };
+
+inline ClosedAnswer *new_clone(const ClosedAnswer &a)  { return dynamic_cast<ClosedAnswer*>(a.clone()); }
 
 class Subject : public IdData {
 public:
@@ -379,7 +395,7 @@ public:
 
   bool areAnswersValid() const;
 
-  static Subject *fromMap(const QVariantMap &m) { return new Subject(m); }
+  static Subject *fromMap(const QVariantMap &m);
 
 protected:
   Subject(const QVariantMap &m);
@@ -387,12 +403,14 @@ protected:
   virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
-  virtual Data *do_clone() const { return new Subject(*this); }
+  virtual Data *do_clone() const;
 
 private:
   bool _isValid;
   Answers _answers;
 };
+
+inline Subject *new_clone(const Subject &s)  { return dynamic_cast<Subject*>(s.clone()); }
 
 class Form : public IdData {
 public:
@@ -421,7 +439,7 @@ public:
   inline const Subjects &subjects() const { return _subjects; }
   void setSubjects(const Subjects &subjects);
 
-  static Form *fromMap(const QVariantMap &m) { return new Form(m); }
+  static Form *fromMap(const QVariantMap &m);
 
 protected:
   Form(const QVariantMap &m);
@@ -429,7 +447,7 @@ protected:
   virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
-  virtual Data *do_clone() const { return new Form(*this); }
+  virtual Data *do_clone() const;
 
 private:
   QString _name;
@@ -438,5 +456,12 @@ private:
   Questions _questions;
   Subjects _subjects;
 };
+
+inline Form *new_clone(const Form &f)  { return dynamic_cast<Form*>(f.clone()); }
+
+}
+}
+
+Q_DECLARE_METATYPE(semantics::core::ClosedQuestion::Type)
 
 #endif
