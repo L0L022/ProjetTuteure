@@ -38,7 +38,9 @@ protected:
 
 protected:
   virtual QVariantMap do_toMap() const;
-  virtual void do_assignFromMap(const QVariantMap &m);
+  virtual void do_assignFromMap(const QVariantMap &m); // séparer en deux ->
+                                                       // juste assign; appel
+                                                       // classe parent
 
 private:
   virtual Data *do_clone() const = 0;
@@ -47,7 +49,7 @@ private:
   QDateTime _modification_date;
 };
 
-inline Data *new_clone(const Data &d)  { return d.clone(); }
+inline Data *new_clone(const Data &d) { return d.clone(); }
 
 class IdData : public Data {
 public:
@@ -70,7 +72,9 @@ private:
   const Id _id;
 };
 
-inline IdData *new_clone(const IdData &d)  { return dynamic_cast<IdData*>(d.clone()); }
+inline IdData *new_clone(const IdData &d) {
+  return dynamic_cast<IdData *>(d.clone());
+}
 
 class IdDataMapSharedData {
 public:
@@ -103,13 +107,13 @@ public:
 
   IdDataMap(const SharedDataPtr &sharedData = std::make_shared<SharedData>())
       : _sharedData(sharedData) {
-      if (_sharedData == nullptr)
-          ; // exception
+    if (_sharedData == nullptr)
+      ; // exception
   }
 
   void insert(std::unique_ptr<T> d) {
     // check d -> exception
-      Id id = d->id();
+    Id id = d->id();
     auto r = _map.insert(id, std::auto_ptr<T>(d.release()));
     if (r.second)
       _sharedData->trySetMaxId(id + 1);
@@ -208,7 +212,9 @@ private:
   QString _title;
 };
 
-inline Question *new_clone(const Question &q)  { return dynamic_cast<Question*>(q.clone()); }
+inline Question *new_clone(const Question &q) {
+  return dynamic_cast<Question *>(q.clone());
+}
 
 class OpenedQuestion : public Question {
 public:
@@ -234,7 +240,9 @@ private:
   Size _nbWords;
 };
 
-inline OpenedQuestion *new_clone(const OpenedQuestion &q)  { return dynamic_cast<OpenedQuestion*>(q.clone()); }
+inline OpenedQuestion *new_clone(const OpenedQuestion &q) {
+  return dynamic_cast<OpenedQuestion *>(q.clone());
+}
 
 class Choice : public IdData {
 public:
@@ -258,7 +266,9 @@ private:
   QString _label;
 };
 
-inline Choice *new_clone(const Choice &c)  { return dynamic_cast<Choice*>(c.clone()); }
+inline Choice *new_clone(const Choice &c) {
+  return dynamic_cast<Choice *>(c.clone());
+}
 
 class ClosedQuestion : public Question {
 public:
@@ -293,7 +303,9 @@ private:
   Choices _choices;
 };
 
-inline ClosedQuestion *new_clone(const ClosedQuestion &q)  { return dynamic_cast<ClosedQuestion*>(q.clone()); }
+inline ClosedQuestion *new_clone(const ClosedQuestion &q) {
+  return dynamic_cast<ClosedQuestion *>(q.clone());
+}
 
 class Answer : public Data {
 public:
@@ -322,7 +334,9 @@ private:
   const Id _question;
 };
 
-inline Answer *new_clone(const Answer &a)  { return dynamic_cast<Answer*>(a.clone()); }
+inline Answer *new_clone(const Answer &a) {
+  return dynamic_cast<Answer *>(a.clone());
+}
 
 class OpenedAnswer : public Answer {
 public:
@@ -349,7 +363,9 @@ private:
   QStringList _words;
 };
 
-inline OpenedAnswer *new_clone(const OpenedAnswer &a)  { return dynamic_cast<OpenedAnswer*>(a.clone()); }
+inline OpenedAnswer *new_clone(const OpenedAnswer &a) {
+  return dynamic_cast<OpenedAnswer *>(a.clone());
+}
 
 class ClosedAnswer : public Answer {
 public:
@@ -378,7 +394,9 @@ private:
   Choices _choices;
 };
 
-inline ClosedAnswer *new_clone(const ClosedAnswer &a)  { return dynamic_cast<ClosedAnswer*>(a.clone()); }
+inline ClosedAnswer *new_clone(const ClosedAnswer &a) {
+  return dynamic_cast<ClosedAnswer *>(a.clone());
+}
 
 class Subject : public IdData {
 public:
@@ -410,7 +428,9 @@ private:
   Answers _answers;
 };
 
-inline Subject *new_clone(const Subject &s)  { return dynamic_cast<Subject*>(s.clone()); }
+inline Subject *new_clone(const Subject &s) {
+  return dynamic_cast<Subject *>(s.clone());
+}
 
 class Form : public IdData {
 public:
@@ -457,10 +477,12 @@ private:
   Subjects _subjects;
 };
 
-inline Form *new_clone(const Form &f)  { return dynamic_cast<Form*>(f.clone()); }
+inline Form *new_clone(const Form &f) {
+  return dynamic_cast<Form *>(f.clone());
+}
 
-}
-}
+} // namespace core
+} // namespace semantics
 
 Q_DECLARE_METATYPE(semantics::core::ClosedQuestion::Type)
 

@@ -3,6 +3,9 @@
 
 #include <QtTest/QtTest>
 
+#include <memory>
+#include <semantics/core/Data.hpp>
+
 namespace semantics {
 namespace core {
 
@@ -17,7 +20,10 @@ private slots:
   void init();
   void cleanup();
 
-  void create_form();
+  void toAndFromMap();
+
+private:
+  std::unique_ptr<Form> create_form();
 };
 
 } // namespace core
