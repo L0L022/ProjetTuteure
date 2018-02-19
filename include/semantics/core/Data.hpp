@@ -4,35 +4,38 @@
 #include <memory>
 
 #include <QDateTime>
-#include <QVariant>
 #include <QList>
+#include <QVariant>
 
 #include <boost/ptr_container/ptr_map.hpp>
 
 class Data : boost::noncopyable {
 public:
-  Data(const QDateTime &modification_date = QDateTime::currentDateTime()) : _modification_date(modification_date) {}
-  Data(const QVariantMap &m);
-  virtual ~Data() {}
+  Data(const QDateTime &modification_date = QDateTime::currentDateTime());
+  virtual ~Data();
 
   inline const QDateTime &modification_date() const {
     return _modification_date;
   }
 
-  QVariantMap toMap() const { return do_toMap(); }
-  Data *clone() const { return do_clone(); }
+  QVariantMap toMap() const;
+  void assignFromMap(const QVariantMap &m);
 
-  bool operator==(const Data &d) const { return toMap() == d.toMap(); }
-  bool operator!=(const Data &d) const { return toMap() != d.toMap(); }
+  Data *clone() const;
+
+  bool operator==(const Data &d) const;
+  bool operator!=(const Data &d) const;
 
 protected:
-  Data(const Data &d) : _modification_date(d._modification_date) {}
+  Data(const QVariantMap &m);
+  Data(const Data &d);
   // Data &operator=(const Data &d) = default;
 
   void update_modification();
 
 protected:
   virtual QVariantMap do_toMap() const;
+  virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
   virtual Data *do_clone() const = 0;
@@ -41,7 +44,7 @@ private:
   QDateTime _modification_date;
 };
 
-inline Data *new_clone(const Data &d) { return d.clone(); }
+inline Data *new_clone(const Data &d);
 
 class IdData : public Data {
 public:
@@ -53,7 +56,9 @@ public:
   inline Id id() const { return _id; }
 
 protected:
+  IdData(const QVariantMap &m);
   virtual QVariantMap do_toMap() const;
+  virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
   virtual Data *do_clone() const { return new IdData(*this); }
@@ -85,11 +90,11 @@ public:
   using Id = SharedData::Id;
 
 private:
-    using Map = boost::ptr_map<Id, T>;
+  using Map = boost::ptr_map<Id, T>;
 
 public:
-    using iterator = typename Map::iterator;
-    using const_iterator = typename Map::const_iterator;
+  using iterator = typename Map::iterator;
+  using const_iterator = typename Map::const_iterator;
 
   IdDataMap(const SharedDataPtr &sharedData = std::make_shared<SharedData>())
       : _sharedData(sharedData) {}
@@ -106,56 +111,85 @@ public:
   inline T &at(const Id &id) const {
     return const_cast<boost::ptr_map<Id, T> &>(_map).at(id);
   }
-  iterator find(const Id& id) { return _map.find(id); }
-  const_iterator find(const Id& id) const { return _map.find(id); }
+  iterator find(const Id &id) { return _map.find(id); }
+  const_iterator find(const Id &id) const { return _map.find(id); }
   inline Id takeId() { return _sharedData->takeId(); }
   size_t count(const Id &id) const { return _map.count(id); }
 
-  bool operator ==(const IdDataMap<T> &m) const { return _map == m._map; }
-  bool operator !=(const IdDataMap<T> &m) const { return _map != m._map; }
+  bool operator==(const IdDataMap<T> &m) const { return _map == m._map; }
+  bool operator!=(const IdDataMap<T> &m) const { return _map != m._map; }
 
-  iterator                begin() { return _map.begin(); }
-  const_iterator          begin() const { return _map.begin(); }
-  iterator                end() { return _map.end(); }
-  const_iterator          end() const { return _map.end(); }
+  iterator begin() { return _map.begin(); }
+  const_iterator begin() const { return _map.begin(); }
+  iterator end() { return _map.end(); }
+  const_iterator end() const { return _map.end(); }
 
 private:
   SharedDataPtr _sharedData;
   Map _map;
 };
 
-template<typename T>
-QVariantMap toVariantMap(typename boost::ptr_map<IdData::Id, T>::const_iterator first, typename boost::ptr_map<IdData::Id, T>::const_iterator last)
-{
-    QVariantMap m;
-    for(; first != last; ++first)
-        m.insert(QString::number(first->first), first->second->toMap());
-    return m;
+template <typename T>
+QVariantMap
+toVariantMap(typename boost::ptr_map<IdData::Id, T>::const_iterator first,
+             typename boost::ptr_map<IdData::Id, T>::const_iterator last) {
+  QVariantMap m;
+  for (; first != last; ++first)
+    m.insert(QString::number(first->first), first->second->toMap());
+  return m;
 }
 
-template<typename T>
+template <typename T>
 QVariantMap toVariantMap(const boost::ptr_map<IdData::Id, T> &map) {
-    return toVariantMap<T>(map.begin(), map.end());
+  return toVariantMap<T>(map.begin(), map.end());
 }
 
-template<typename T>
-QVariantMap toVariantMap(const IdDataMap<T> &map) {
-    return toVariantMap<T>(map.begin(), map.end());
+template <typename T> QVariantMap toVariantMap(const IdDataMap<T> &map) {
+  return toVariantMap<T>(map.begin(), map.end());
+}
+
+template <typename T>
+void fromVariantMap(const QVariantMap &src,
+                    boost::ptr_map<IdData::Id, T> &dest) {
+  for (auto it = src.begin(); it != src.end(); ++it) {
+    auto key = it.key().toInt();
+    auto value = it.value().toMap();
+    auto i = dest.find(key);
+    if (i != dest.end())
+      i->second->assignFromMap(value);
+    else
+      dest.insert(key, T::fromMap(value));
+  }
+}
+
+template <typename T>
+void fromVariantMap(const QVariantMap &src, IdDataMap<T> &dest) {
+  for (auto it = src.begin(); it != src.end(); ++it) {
+    auto key = it.key().toInt();
+    auto value = it.value().toMap();
+    auto i = dest.find(key);
+    if (i != dest.end())
+      i->second->assignFromMap(value);
+    else
+      dest.insert(std::auto_ptr<T>(T::fromMap(value)));
+  }
 }
 
 class Question : public IdData {
 protected:
   Question(const Id id,
-           const QDateTime &modification_date = QDateTime::currentDateTime())
-      : IdData(id, modification_date) {}
+           const QDateTime &modification_date = QDateTime::currentDateTime());
   Question(const QVariantMap &m);
 
 public:
   inline QString &title() { return _title; }
   void setTitle(const QString &title);
 
+  static Question *fromMap(const QVariantMap &m) { return new Question(m); }
+
 protected:
   virtual QVariantMap do_toMap() const;
+  virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
   virtual Data *do_clone() const { return new Question(*this); }
@@ -166,36 +200,44 @@ private:
 
 class OpenedQuestion : public Question {
 public:
-  OpenedQuestion(const Id id, const QDateTime &modification_date =
-                                  QDateTime::currentDateTime())
-      : Question(id, modification_date), _nbWords(0) {}
-  OpenedQuestion(const QVariantMap &m);
+  using Size = quint64;
 
-  inline size_t nbWords() const { return _nbWords; }
-  void setNbWords(const size_t nbWords);
+  OpenedQuestion(const Id id, const QDateTime &modification_date =
+                                  QDateTime::currentDateTime());
+
+  inline Size nbWords() const { return _nbWords; }
+  void setNbWords(const Size nbWords);
+
+  static OpenedQuestion *fromMap(const QVariantMap &m) {
+    return new OpenedQuestion(m);
+  }
 
 protected:
+  OpenedQuestion(const QVariantMap &m);
   virtual QVariantMap do_toMap() const;
+  virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
   virtual Data *do_clone() const { return new OpenedQuestion(*this); }
 
 private:
-  size_t _nbWords;
+  Size _nbWords;
 };
 
 class Choice : public IdData {
 public:
   Choice(const Id id,
-         const QDateTime &modification_date = QDateTime::currentDateTime())
-      : IdData(id, modification_date) {}
-  Choice(const QVariantMap &m);
+         const QDateTime &modification_date = QDateTime::currentDateTime());
 
   inline const QString &label() const { return _label; }
   void setLabel(const QString &label);
 
+  static Choice *fromMap(const QVariantMap &m) { return new Choice(m); }
+
 protected:
+  Choice(const QVariantMap &m);
   virtual QVariantMap do_toMap() const;
+  virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
   virtual Data *do_clone() const { return new Choice(*this); }
@@ -214,9 +256,7 @@ public:
       const Type type, const Id id,
       Choices::SharedDataPtr sharedData =
           std::make_shared<Choices::SharedData>(),
-      const QDateTime &modification_date = QDateTime::currentDateTime())
-      : Question(id, modification_date), _type(type), _choices(sharedData) {}
-  ClosedQuestion(const QVariantMap &m);
+      const QDateTime &modification_date = QDateTime::currentDateTime());
 
   inline Type type() const { return _type; }
   void setType(const Type type);
@@ -224,8 +264,14 @@ public:
   inline const Choices &choices() const { return _choices; }
   void setChoices(const Choices &choices);
 
+  static ClosedQuestion *fromMap(const QVariantMap &m) {
+    return new ClosedQuestion(m);
+  }
+
 protected:
+  ClosedQuestion(const QVariantMap &m);
   virtual QVariantMap do_toMap() const;
+  virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
   virtual Data *do_clone() const { return new ClosedQuestion(*this); }
@@ -235,21 +281,27 @@ private:
   Choices _choices;
 };
 
+Q_DECLARE_METATYPE(ClosedQuestion::Type)
+
 class Answer : public Data {
 public:
   using Id = IdData::Id;
   using Questions = IdDataMap<Question>;
 
 protected:
-  Answer(const Id question, const QDateTime &modification_date = QDateTime::currentDateTime())
-      : Data(modification_date), _question(question) {}
+  Answer(const Id question,
+         const QDateTime &modification_date = QDateTime::currentDateTime());
   Answer(const QVariantMap &m);
+
 public:
   inline Id question() const { return _question; }
   virtual bool isValid(const Questions &questions) const;
 
+  static Answer *fromMap(const QVariantMap &m) { return new Answer(m); }
+
 protected:
   virtual QVariantMap do_toMap() const;
+  virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
   virtual Data *do_clone() const { return new Answer(*this); }
@@ -261,20 +313,21 @@ private:
 class OpenedAnswer : public Answer {
 public:
   OpenedAnswer(const Id id, const QDateTime &modification_date =
-                                QDateTime::currentDateTime())
-      : Answer(id, modification_date) {}
-  OpenedAnswer(const QVariantMap &m);
+                                QDateTime::currentDateTime());
 
   inline const QStringList &words() const { return _words; }
   void setWords(const QStringList &words);
 
-  bool isValid(const Questions &questions) const {
-      auto q = dynamic_cast<const OpenedQuestion &>(questions.at(question()));
-      return _words.size() <= q.nbWords();
+  bool isValid(const Questions &questions) const;
+
+  static OpenedAnswer *fromMap(const QVariantMap &m) {
+    return new OpenedAnswer(m);
   }
 
 protected:
+  OpenedAnswer(const QVariantMap &m);
   virtual QVariantMap do_toMap() const;
+  virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
   virtual Data *do_clone() const { return new OpenedAnswer(*this); }
@@ -288,37 +341,21 @@ public:
   using Choices = QList<Id>;
 
   ClosedAnswer(const Id id, const QDateTime &modification_date =
-                                QDateTime::currentDateTime())
-      : Answer(id, modification_date) {}
-  ClosedAnswer(const QVariantMap &m);
+                                QDateTime::currentDateTime());
 
   inline const Choices &choices() const { return _choices; }
   void setChoices(const Choices &choices);
 
-  bool isValid(const Questions &questions) const {
-      auto q = dynamic_cast<const ClosedQuestion &>(questions.at(question()));
+  bool isValid(const Questions &questions) const;
 
-      switch (q.type()) {
-      case ClosedQuestion::Unique:
-          if (_choices.size() >= 2)
-              return false;
-          break;
-      case ClosedQuestion::Multiple:
-          break;
-      default:
-          return false;
-          break;
-      }
-
-      for (const Id &id : _choices)
-          if (q.choices().count(id) == 0)
-              return false;
-
-      return true;
+  static ClosedAnswer *fromMap(const QVariantMap &m) {
+    return new ClosedAnswer(m);
   }
 
 protected:
+  ClosedAnswer(const QVariantMap &m);
   virtual QVariantMap do_toMap() const;
+  virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
   virtual Data *do_clone() const { return new ClosedAnswer(*this); }
@@ -332,9 +369,7 @@ public:
   using Answers = boost::ptr_map<Id, Answer>;
 
   Subject(const Id id,
-          const QDateTime &modification_date = QDateTime::currentDateTime())
-      : IdData(id, modification_date) {}
-  Subject(const QVariantMap &m);
+          const QDateTime &modification_date = QDateTime::currentDateTime());
 
   bool isValid() const { return _isValid; }
   void setIsValid(const bool isValid);
@@ -344,8 +379,12 @@ public:
 
   bool areAnswersValid() const;
 
+  static Subject *fromMap(const QVariantMap &m) { return new Subject(m); }
+
 protected:
+  Subject(const QVariantMap &m);
   virtual QVariantMap do_toMap() const;
+  virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
   virtual Data *do_clone() const { return new Subject(*this); }
@@ -365,10 +404,7 @@ public:
            std::make_shared<Questions::SharedData>(),
        Subjects::SharedDataPtr subjectsSharedData =
            std::make_shared<Subjects::SharedData>(),
-       const QDateTime &modification_date = QDateTime::currentDateTime())
-      : IdData(id, modification_date), _questions(questionsSharedData),
-        _subjects(subjectsSharedData) {}
-  Form(const QVariantMap &m);
+       const QDateTime &modification_date = QDateTime::currentDateTime());
 
   inline const QString &name() const { return _name; }
   void setName(const QString &name);
@@ -385,8 +421,12 @@ public:
   inline const Subjects &subjects() const { return _subjects; }
   void setSubjects(const Subjects &subjects);
 
+  static Form *fromMap(const QVariantMap &m) { return new Form(m); }
+
 protected:
+  Form(const QVariantMap &m);
   virtual QVariantMap do_toMap() const;
+  virtual void do_assignFromMap(const QVariantMap &m);
 
 private:
   virtual Data *do_clone() const { return new Form(*this); }
