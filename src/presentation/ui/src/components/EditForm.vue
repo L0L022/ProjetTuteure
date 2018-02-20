@@ -5,6 +5,7 @@
   <el-input placeholder="Description" v-model="form.description"></el-input>
   <el-table
       :data="Object.values(form.questions)"
+      default-expand-all
       style="width: 100%">
       <el-table-column
          type="selection"
@@ -44,8 +45,12 @@
         </template>
       </el-table-column>
   </el-table>
-  <el-input placeholder="Titre" v-model="new_question_title"></el-input>
-  <el-button @click="add()">Nouvelle question</el-button>
+    <el-col :span="16">
+      <el-input placeholder="Titre de la nouvelle question" v-model="new_question_title"></el-input>
+    </el-col>
+    <el-col :span="8">
+      <el-button @click="add()">Nouvelle question</el-button>
+    </el-col>
   <el-button @click="save()">Enregistrer</el-button>
 </div>
 </template>
@@ -57,7 +62,7 @@ import EditOpenedQuestion from '@/components/EditOpenedQuestion'
 export default {
   name: 'EditForm',
   props: {
-    id: Number,
+    id: String,
     required: true
   },
   data () {

@@ -1,9 +1,9 @@
 <template>
 <div class="AnswerForm">
   <h1>Édition du sujet n°{{ subject.id }} du formulaire n°{{ form.id }}</h1>
-  {{ form.name }}
-  {{ form.description }}
-  <el-switch v-model="subject.isValid"></el-switch>
+  Nom : {{ form.name }}<br>
+  Description : {{ form.description }}<br>
+  Est validé : <el-switch v-model="subject.isValid"></el-switch><br>
   <el-table
       :data="Object.values(form.questions)"
       default-expand-all
@@ -30,7 +30,7 @@ import AnswerOpenedQuestion from '@/components/AnswerOpenedQuestion'
 export default {
   name: 'AnswerForm',
   props: {
-    id: Number,
+    id: String,
     required: true
   },
   data () {

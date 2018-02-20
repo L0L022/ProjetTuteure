@@ -16,8 +16,12 @@
     </el-table-column>
   </el-table>
   <div style="margin-top: 20px">
-    <el-input placeholder="Label" v-model="new_choice"></el-input>
-    <el-button @click="add()" type="primary">Ajouter un choix</el-button>
+    <el-col :span="16">
+      <el-input placeholder="Label" v-model="new_choice"></el-input>
+    </el-col>
+    <el-col :span="8">
+      <el-button @click="add()" type="primary">Ajouter un choix</el-button>
+    </el-col>
   </div>
 </div>
 </template>

@@ -18,9 +18,18 @@
       label="Opérations">
       <template slot-scope="scope">
        <el-button-group>
-         <el-button @click="view(scope.row.id)" type="primary" icon="el-icon-view"></el-button>
-         <el-button @click="edit(scope.row.id)" type="primary" icon="el-icon-edit"></el-button>
-         <el-button @click="remove(scope.row.id)" type="danger" icon="el-icon-delete"></el-button>
+         <el-tooltip content="Voir le formulaire">
+           <el-button @click="viewForm(scope.row.id)" type="primary" icon="el-icon-view"></el-button>
+         </el-tooltip>
+         <el-tooltip content="Voir les réponses au formulaire">
+           <el-button @click="viewAnswers(scope.row.id)" type="primary" icon="el-icon-tickets"></el-button>
+         </el-tooltip>
+         <el-tooltip content="Modifier le formulaire">
+           <el-button @click="edit(scope.row.id)" type="primary" icon="el-icon-edit"></el-button>
+         </el-tooltip>
+         <el-tooltip content="Supprimer le formulaire">
+           <el-button @click="remove(scope.row.id)" type="danger" icon="el-icon-delete"></el-button>
+         </el-tooltip>
        </el-button-group>
       </template>
     </el-table-column>
@@ -53,6 +62,7 @@ export default {
   methods: {
     add: function () {
       console.log('Add form')
+      this.$router.push({name: 'EditForm', params: { id: 'new' }})
     },
     remove: function (id) {
       console.log('Remove form : ' + id)
@@ -61,9 +71,13 @@ export default {
       console.log('Edit form : ' + id)
       this.$router.push({name: 'EditForm', params: { id: id }})
     },
-    view: function (id) {
+    viewForm: function (id) {
       console.log('View form : ' + id)
       this.$router.push({name: 'ViewForm', params: { id: id }})
+    },
+    viewAnswers: function (id) {
+      console.log('View answers : ' + id)
+      this.$router.push({name: 'ListSubject', params: { id: id }})
     }
   }
 }
