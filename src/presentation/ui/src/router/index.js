@@ -31,7 +31,7 @@ export default new Router({
       props: true
     },
     {
-      path: '/answer/:id',
+      path: '/answer/:formId/:subjectId',
       name: 'AnswerForm',
       component: AnswerForm,
       props: true

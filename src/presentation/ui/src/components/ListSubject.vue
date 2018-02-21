@@ -2,18 +2,14 @@
 <div class="ListSubject">
   <h1>Les réponses au formulaire n°{{ id }}</h1>
   <el-table :data="Object.values(subjects)" style="width: 100%" stripe>
-   <el-table-column
-      type="selection"
-      width="55">
+    <el-table-column type="selection" width="55">
     </el-table-column>
-    <el-table-column
-      label="Status">
+    <el-table-column label="Status">
       <template slot-scope="scope">
        <el-tag :type="scope.row.isValid ? 'success' : 'danger'">{{scope.row.isValid ? 'Validé' : 'Non validé'}}</el-tag>
       </template>
     </el-table-column>
-    <el-table-column
-      label="Opérations">
+    <el-table-column label="Opérations">
       <template slot-scope="scope">
        <el-button-group>
          <el-button @click="edit(scope.row.id)" type="primary" icon="el-icon-edit"></el-button>
@@ -32,15 +28,15 @@
 export default {
   name: 'ListSubject',
   props: {
-   id: {
-     required: true
-   },
+    id: {
+      required: true
+    },
     services: {
       type: Object,
       required: true
     }
   },
-  data () {
+  data() {
     return {
       subjects: {
         0: {
@@ -62,23 +58,43 @@ export default {
     this.refresh()
   },
   methods: {
-   refresh: function() {
-     console.log('refresh');
-     var me = this
-     this.services.call('listSubjects', {id: this.id}, function(data) {
-       me.subjects = data.subjects
-     })
-   },
-    add: function () {
+    refresh: function() {
+      console.log('refresh');
+      var me = this
+      this.services.call('listSubjects', {
+        id: this.id
+      }, function(data) {
+        me.subjects = data.subjects
+      })
+    },
+    add: function() {
       console.log('Add subject')
-      this.$router.push({name: 'AnswerForm', params: { id: 'new' }})
+      this.$router.push({
+        name: 'AnswerForm',
+        params: {
+          formId: this.id,
+          subjectId: 'new'
+        }
+      })
     },
-    remove: function (id) {
+    remove: function(id) {
       console.log('Remove subject : ' + id)
+      var me = this
+      this.services.call('deleteSubject', {
+        id: id
+      }, function(data) {
+        me.refresh()
+      })
     },
-    edit: function (id) {
+    edit: function(id) {
       console.log('Edit subject : ' + id)
-      this.$router.push({name: 'AnswerForm', params: { id: id }})
+      this.$router.push({
+        name: 'AnswerForm',
+        params: {
+          formId: this.id,
+          subjectId: id
+        }
+      })
     }
   },
   watch: {

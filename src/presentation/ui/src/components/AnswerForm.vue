@@ -1,23 +1,16 @@
 <template>
-<div class="AnswerForm">
-  <h1>Édition du sujet n°{{ subject.id }} du formulaire n°{{ form.id }}</h1>
-  Nom : {{ form.name }}<br>
-  Description : {{ form.description }}<br>
-  Est validé : <el-switch v-model="subject.isValid"></el-switch><br>
-  <el-table
-      :data="Object.values(form.questions)"
-      default-expand-all
-      style="width: 100%">
-       <el-table-column type="expand">
-         <template slot-scope="scope">
+<div class="AnswerForm" v-if="!loading">
+  <h1>Édition du sujet n°{{ subject.id }} du formulaire n°{{ form.id }}</h1> Nom : {{ form.name }}<br> Description : {{ form.description }}<br> Est validé :
+  <el-switch v-model="subject.isValid"></el-switch><br>
+  <el-table :data="Object.values(form.questions)" default-expand-all style="width: 100%">
+    <el-table-column type="expand">
+      <template slot-scope="scope">
            <AnswerClosedQuestion v-if="(scope.row.type === 'unique') || (scope.row.type ==='multiple')" :question="scope.row" :answer="subject.answers[scope.row.id]"></AnswerClosedQuestion>
            <AnswerOpenedQuestion v-if="scope.row.type === 'opened'" :question="scope.row" :answer="subject.answers[scope.row.id]"></AnswerOpenedQuestion>
          </template>
-       </el-table-column>
-      <el-table-column
-        label="Titre"
-        prop="title">
-      </el-table-column>
+    </el-table-column>
+    <el-table-column label="Titre" prop="title">
+    </el-table-column>
   </el-table>
   <el-button @click="save()">Enregistrer</el-button>
 </div>
@@ -30,13 +23,20 @@ import AnswerOpenedQuestion from '@/components/AnswerOpenedQuestion'
 export default {
   name: 'AnswerForm',
   props: {
-    id: String,
-    required: true
+    subjectId: {
+      required: true
+    },
+    formId: {
+      required: true
+    },
+    services: {
+      type: Object,
+      required: true
+    }
   },
-  data () {
+  data() {
     return {
-      types: [
-        {
+      types: [{
           value: 'multiple',
           label: 'Choix multiple'
         },
@@ -125,27 +125,58 @@ export default {
         }
       },
       new_question_title: '',
-      new_question_id: 0
+      new_question_id: 0,
+      loading: true
     }
   },
-  created: function () {
-    var keys = Object.keys(this.form.questions)
-    if (keys.length !== 0) {
-      this.new_question_id = Math.max(...keys) + 1
-    }
+  created: function() {
+    var me = this
+    this.services.call('getForm', {
+      id: this.formId
+    }, function(data) {
+     console.log('getForm');
+      me.form = data
+      me.refresh()
+    })
   },
   methods: {
-    add: function () {
-      if (this.new_question_title !== '') {
-        this.$set(this.form.questions, this.new_question_id, {id: this.new_question_id, title: this.new_question_title, type: '', nbAnswers: 0, choices: {}})
-        this.new_question_id = this.new_question_id + 1
+    refresh: function() {
+      console.log('refresh');
+      var me = this
+      if (this.subjectId === 'new') {
+        this.subject.id = 'new'
+        this.loading = false
+      } else {
+        this.loading = true
+        this.services.call('getSubject', {
+          id: this.subjectId
+        }, function(data) {
+         console.log('getSubject');
+          me.subject = data
+          me.loading = false
+        })
       }
     },
-    remove: function (id) {
-      this.$delete(this.form.questions, id)
-    },
-    save: function () {
-      console.log('Save : ' + JSON.stringify(this.form))
+    save: function() {
+      console.log('Save : ' + JSON.stringify(this.subject))
+      var me = this
+      if (this.subject.id === 'new') {
+        this.services.call('takeSubjectId', {}, function(data) {
+          me.subject.id = data['id']
+          me.services.call('saveSubject', me.subject, function(data) {
+            me.$router.replace({
+              name: 'AnswerForm',
+              params: {
+                id: me.subject.id
+              }
+            })
+          })
+        })
+      } else {
+        this.services.call('saveSubject', this.subject, function(data) {
+          me.refresh()
+        })
+      }
     }
   },
   components: {

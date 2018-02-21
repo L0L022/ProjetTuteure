@@ -8,8 +8,10 @@
 export default {
   name: 'EditOpenedQuestion',
   props: {
-    question: Object,
-    required: true
+    question: {
+      type: Object,
+      required: true
+    }
   }
 }
 </script>

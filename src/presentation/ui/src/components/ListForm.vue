@@ -80,6 +80,10 @@ export default {
     },
     remove: function(id) {
       console.log('Remove form : ' + id)
+      var me = this
+      this.services.call('deleteForm', {id: id}, function(data) {
+       me.refresh()
+      })
     },
     edit: function(id) {
       console.log('Edit form : ' + id)

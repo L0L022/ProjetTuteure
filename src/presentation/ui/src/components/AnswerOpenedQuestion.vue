@@ -8,9 +8,14 @@
 export default {
   name: 'AnswerOpenedQuestion',
   props: {
-    question: Object,
-    answer: Object,
-    required: true
+    question: {
+      type: Object,
+      required: true
+    },
+    answer: {
+      type: Object,
+      required: true
+    }
   }
 }
 </script>

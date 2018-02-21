@@ -9,13 +9,13 @@ UIServices::UIServices(QObject *parent) : Services(parent) {
 void UIServices::registerData() {
     insertFunction(QStringLiteral("listForms"), [](const QVariantMap &args) -> QVariantMap {
         Q_UNUSED(args)
-        QVariantList forms;
+        QVariantMap forms;
         for (int i = 0; i < 10; ++i) {
             QVariantMap form;
             form["id"] = i;
             form["name"] = "Name";
             form["description"] = "Description";
-            forms.push_back(form);
+            forms[QString::number(i)] = form;
         }
         QVariantMap r;
         r["forms"] = forms;
@@ -23,12 +23,12 @@ void UIServices::registerData() {
     });
     insertFunction(QStringLiteral("listSubjects"), [](const QVariantMap &args) -> QVariantMap {
         Q_UNUSED(args)
-        QVariantList subjects;
+        QVariantMap subjects;
         for (int i = 0; i < 10; ++i) {
             QVariantMap subject;
             subject["id"] = i;
             subject["isValid"] = false;
-            subjects.push_back(subject);
+            subjects[QString::number(i)] = subject;
         }
         QVariantMap r;
         r["subjects"] = subjects;
@@ -53,7 +53,10 @@ void UIServices::registerData() {
         choice_3["id"] = 2;
         choice_3["label"] = "Choix 3";
 
-        QVariantList choices = {choice_1, choice_2, choice_3};
+        QVariantMap choices;
+        choices[QString::number(choice_1["id"].toInt())] = choice_1;
+        choices[QString::number(choice_2["id"].toInt())] = choice_2;
+        choices[QString::number(choice_3["id"].toInt())] = choice_3;
 
         QVariantMap unique_q;
         unique_q["id"] = 2;
@@ -82,21 +85,21 @@ void UIServices::registerData() {
     });
     insertFunction(QStringLiteral("getSubject"), [](const QVariantMap &args) -> QVariantMap {
         QVariantMap answer_1;
-        answer_1["id"] = 0;
-        answer_1["words"] = "une liste de  mots";
+        answer_1["id"] = 1;
+        answer_1["words"] = QVariantList() << "des" << "mots" << "dans" << "une" << "liste";
 
         QVariantMap answer_2;
-        answer_2["id"] = 1;
+        answer_2["id"] = 2;
         answer_2["choice"] = 2;
 
         QVariantMap answer_3;
-        answer_3["id"] = 2;
+        answer_3["id"] = 3;
         answer_3["choices"] = QVariantList() << 0 << 2;
 
         QVariantMap answers;
-        answers[QString::number(answer_1["id"].toInt())] = answer_1;
-        answers[QString::number(answer_2["id"].toInt())] = answer_2;
-        answers[QString::number(answer_3["id"].toInt())] = answer_3;
+        answers[QString::number(1)] = answer_1;
+        answers[QString::number(2)] = answer_2;
+        answers[QString::number(3)] = answer_3;
 
         QVariantMap subject;
         subject["id"] = args["id"];
@@ -121,5 +124,33 @@ void UIServices::registerData() {
     insertFunction(QStringLiteral("deleteSubject"), [](const QVariantMap &args) -> QVariantMap {
         qDebug() << "deleteSubject: " << args["id"];
         return QVariantMap();
+    });
+    insertFunction(QStringLiteral("takeFormId"), [](const QVariantMap &args) -> QVariantMap {
+        unsigned int id = rand();
+        qDebug() << "takeFormId: " << id;
+        QVariantMap r;
+        r["id"] = id;
+        return r;
+    });
+    insertFunction(QStringLiteral("takeSubjectId"), [](const QVariantMap &args) -> QVariantMap {
+        unsigned int id = rand();
+        qDebug() << "takeSubjectId: " << id;
+        QVariantMap r;
+        r["id"] = id;
+        return r;
+    });
+    insertFunction(QStringLiteral("takeQuestionId"), [](const QVariantMap &args) -> QVariantMap {
+        unsigned int id = rand();
+        qDebug() << "takeQuestionId: " << id;
+        QVariantMap r;
+        r["id"] = id;
+        return r;
+    });
+    insertFunction(QStringLiteral("takeChoiceId"), [](const QVariantMap &args) -> QVariantMap {
+        unsigned int id = rand();
+        qDebug() << "takeChoiceId: " << id;
+        QVariantMap r;
+        r["id"] = id;
+        return r;
     });
 }

@@ -1,15 +1,12 @@
 <template>
 <div class="EditClosedQuestion">
-  <el-table :data="Object.values(question.choices)" style="width: 100%" stripe>
-    <el-table-column
-      label="Label"
-      width="500">
+  <el-table :data="Object.values(question.choices)" style="width: 100%">
+    <el-table-column label="Label" width="500">
       <template slot-scope="scope">
         <el-input placeholder="Label" v-model="scope.row.label"></el-input>
       </template>
     </el-table-column>
-    <el-table-column
-      label="Opérations">
+    <el-table-column label="Opérations">
       <template slot-scope="scope">
        <el-button @click="remove(scope.row.id)" type="danger" icon="el-icon-delete"></el-button>
       </template>
@@ -30,29 +27,37 @@
 export default {
   name: 'EditClosedQuestion',
   props: {
-    question: Object,
-    required: true
+    services: {
+      type: Object,
+      required: true
+    },
+    question: {
+      type: Object,
+      required: true
+    }
   },
-  data: function () {
+  data() {
     return {
-      new_choice: '',
-      new_id: 0
+      new_choice: ''
     }
   },
-  created: function () {
-    var keys = Object.keys(this.question.choices)
-    if (keys.length !== 0) {
-      this.new_id = Math.max(...keys) + 1
-    }
+  created: function() {
+   console.log(this.question.choices);
   },
   methods: {
-    add: function () {
+    add: function() {
       if (this.new_choice !== '') {
-        this.$set(this.question.choices, this.new_id, {id: this.new_id, label: this.new_choice})
-        this.new_id = this.new_id + 1
+        var me = this
+        this.services.call('takeChoiceId', {}, function(data) {
+          me.$set(me.question.choices, data['id'], {
+            id: data['id'],
+            label: me.new_choice
+          })
+          me.new_choice = ''
+        })
       }
     },
-    remove: function (id) {
+    remove: function(id) {
       this.$delete(this.question.choices, id)
     }
   }
