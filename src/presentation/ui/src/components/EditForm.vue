@@ -3,24 +3,17 @@
   <h1>Édition du formulaire n°{{ form.id }}</h1>
   <el-input placeholder="Nom" v-model="form.name"></el-input>
   <el-input placeholder="Description" v-model="form.description"></el-input>
-  <el-table
-      :data="Object.values(form.questions)"
-      default-expand-all
-      style="width: 100%">
-      <el-table-column
-         type="selection"
-         width="55">
-       </el-table-column>
-       <el-table-column type="expand">
-         <template slot-scope="scope">
+  <el-table :data="Object.values(form.questions)" default-expand-all style="width: 100%">
+    <el-table-column type="selection" width="55">
+    </el-table-column>
+    <el-table-column type="expand">
+      <template slot-scope="scope">
            <EditClosedQuestion v-if="(scope.row.type === 'unique') || (scope.row.type ==='multiple')" :question="scope.row"></EditClosedQuestion>
            <EditOpenedQuestion v-if="scope.row.type === 'opened'" :question="scope.row"></EditOpenedQuestion>
          </template>
-       </el-table-column>
-       <el-table-column
-         label="Type"
-         width="200">
-         <template slot-scope="scope">
+    </el-table-column>
+    <el-table-column label="Type" width="200">
+      <template slot-scope="scope">
           <el-select v-model="scope.row.type" placeholder="Type">
            <el-option
              v-for="item in types"
@@ -30,27 +23,24 @@
            </el-option>
           </el-select>
          </template>
-       </el-table-column>
-      <el-table-column
-        label="Titre"
-        width="500">
-        <template slot-scope="scope">
+    </el-table-column>
+    <el-table-column label="Titre" width="500">
+      <template slot-scope="scope">
           <el-input placeholder="Titre" v-model="scope.row.title"></el-input>
         </template>
-      </el-table-column>
-      <el-table-column
-        label="Opérations">
-        <template slot-scope="scope">
+    </el-table-column>
+    <el-table-column label="Opérations">
+      <template slot-scope="scope">
          <el-button @click="remove(scope.row.id)" type="danger" icon="el-icon-delete"></el-button>
         </template>
-      </el-table-column>
+    </el-table-column>
   </el-table>
-    <el-col :span="16">
-      <el-input placeholder="Titre de la nouvelle question" v-model="new_question_title"></el-input>
-    </el-col>
-    <el-col :span="8">
-      <el-button @click="add()">Nouvelle question</el-button>
-    </el-col>
+  <el-col :span="16">
+    <el-input placeholder="Titre de la nouvelle question" v-model="new_question_title"></el-input>
+  </el-col>
+  <el-col :span="8">
+    <el-button @click="add()">Nouvelle question</el-button>
+  </el-col>
   <el-button @click="save()">Enregistrer</el-button>
 </div>
 </template>
@@ -62,13 +52,17 @@ import EditOpenedQuestion from '@/components/EditOpenedQuestion'
 export default {
   name: 'EditForm',
   props: {
-    id: String,
-    required: true
+    id: {
+      required: true
+    },
+    services: {
+      type: Object,
+      required: true
+    }
   },
-  data () {
+  data() {
     return {
-      types: [
-        {
+      types: [{
           value: 'multiple',
           label: 'Choix multiple'
         },
@@ -139,24 +133,45 @@ export default {
       new_question_id: 0
     }
   },
-  created: function () {
+  created: function() {
+    this.refresh()
     var keys = Object.keys(this.form.questions)
     if (keys.length !== 0) {
       this.new_question_id = Math.max(...keys) + 1
     }
   },
   methods: {
-    add: function () {
+    refresh: function() {
+      console.log('refresh');
+      var me = this
+      this.services.call('getForm', {
+        id: this.id
+      }, function(data) {
+        me.form = data
+      })
+    },
+    add: function() {
       if (this.new_question_title !== '') {
-        this.$set(this.form.questions, this.new_question_id, {id: this.new_question_id, title: this.new_question_title, type: '', nbAnswers: 0, choices: {}})
+        this.$set(this.form.questions, this.new_question_id, {
+          id: this.new_question_id,
+          title: this.new_question_title,
+          type: '',
+          nbAnswers: 0,
+          choices: {}
+        })
         this.new_question_id = this.new_question_id + 1
       }
     },
-    remove: function (id) {
+    remove: function(id) {
       this.$delete(this.form.questions, id)
     },
-    save: function () {
+    save: function() {
       console.log('Save : ' + JSON.stringify(this.form))
+    }
+  },
+  watch: {
+    id: function() {
+      this.refresh()
     }
   },
   components: {

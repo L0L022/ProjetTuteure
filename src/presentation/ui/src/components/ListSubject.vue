@@ -1,6 +1,6 @@
 <template>
 <div class="ListSubject">
-  <h1>Les réponses au formulaire n°{{ form.id }}</h1>
+  <h1>Les réponses au formulaire n°{{ id }}</h1>
   <el-table :data="Object.values(subjects)" style="width: 100%" stripe>
    <el-table-column
       type="selection"
@@ -31,13 +31,17 @@
 <script>
 export default {
   name: 'ListSubject',
+  props: {
+   id: {
+     required: true
+   },
+    services: {
+      type: Object,
+      required: true
+    }
+  },
   data () {
     return {
-      form: {
-        id: 0,
-        name: 'Étude de l IUT d Arles',
-        description: 'info2 - décembre 2018'
-      },
       subjects: {
         0: {
           id: 0,
@@ -54,7 +58,17 @@ export default {
       }
     }
   },
+  created: function() {
+    this.refresh()
+  },
   methods: {
+   refresh: function() {
+     console.log('refresh');
+     var me = this
+     this.services.call('listSubjects', {id: this.id}, function(data) {
+       me.subjects = data.subjects
+     })
+   },
     add: function () {
       console.log('Add subject')
       this.$router.push({name: 'AnswerForm', params: { id: 'new' }})
@@ -65,6 +79,11 @@ export default {
     edit: function (id) {
       console.log('Edit subject : ' + id)
       this.$router.push({name: 'AnswerForm', params: { id: id }})
+    }
+  },
+  watch: {
+    id: function() {
+      this.refresh()
     }
   }
 }

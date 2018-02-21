@@ -3,6 +3,10 @@
 #include <QThread>
 
 UIServices::UIServices(QObject *parent) : Services(parent) {
+    registerData();
+}
+
+void UIServices::registerData() {
     insertFunction(QStringLiteral("listForms"), [](const QVariantMap &args) -> QVariantMap {
         Q_UNUSED(args)
         QVariantList forms;
@@ -52,13 +56,13 @@ UIServices::UIServices(QObject *parent) : Services(parent) {
         QVariantList choices = {choice_1, choice_2, choice_3};
 
         QVariantMap unique_q;
-        unique_q["id"] = 1;
+        unique_q["id"] = 2;
         unique_q["title"] = "Une question unique";
         unique_q["type"] = "unique";
         unique_q["choices"] = choices;
 
         QVariantMap multiple_q;
-        multiple_q["id"] = 2;
+        multiple_q["id"] = 3;
         multiple_q["title"] = "Une question multiple";
         multiple_q["type"] = "multiple";
         multiple_q["choices"] = choices;
@@ -69,7 +73,7 @@ UIServices::UIServices(QObject *parent) : Services(parent) {
         questions[QString::number(multiple_q["id"].toInt())] = multiple_q;
 
         QVariantMap form;
-        form["id"] = args["id"];
+        form["id"] = args["id"].toInt();
         form["name"] = "Name";
         form["description"] = "Description";
         form["questions"] = questions;

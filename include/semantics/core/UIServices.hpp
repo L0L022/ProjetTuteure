@@ -8,6 +8,9 @@ class UIServices : public Services {
   Q_OBJECT
 public:
   UIServices(QObject *parent = nullptr);
+
+private:
+  void registerData();
 };
 
 #endif
