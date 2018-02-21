@@ -5,28 +5,38 @@
 #include <QString>
 #include <QStringList>
 
-struct Calcul{
-  QString _word;
-  int _occurenceCount
-  int _rankList;
-  QList<float> _result;
-
-  Calcul(QString word, int rank)
-  :_word(word),_occurenceCount(1),_rankList(0),_result(0){
-  }
-
-  Calcul::insert(int rank){
-    _occurenceCount++;
-    _rankList+=rank;
-  }
-
-  float Calcul::rankCalculation(){
-    _result = _rankList/_occurenceCount;
-  }
-}
-
 class Calculation {
-    static QList<Calcul> SimpleGraph(QList<QStringList> question);
+
+  struct Calcul{
+    QString _word;
+    int _occurenceCount;
+    int _rankList;
+    QList<float> _result;
+
+    Calcul(QString word, int rank)
+    :_word(word),_occurenceCount(1),_rankList(0),_result(0){}
+
+    insert(int rank){
+      _occurenceCount++;
+      _rankList+=rank;
+    }
+
+    float rankCalculation(){
+      _result = _rankList/_occurenceCount;
+    }
+
+
+  };
+
+  struct SimpleGraph {
+    QList<QString> _words;
+    QList<float> _result;
+
+    SimpleGraph(QList<QString> words, QList<float> result)
+    :_words(words),_result(result){}
+  };
+
+    static SimpleGraph simpleGraph(QList<QStringList> question);
 };
 
 #endif
