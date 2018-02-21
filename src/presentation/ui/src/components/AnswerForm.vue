@@ -134,14 +134,14 @@ export default {
     this.services.call('getForm', {
       id: this.formId
     }, function(data) {
-     console.log('getForm');
+      console.log('getForm')
       me.form = data
       me.refresh()
     })
   },
   methods: {
     refresh: function() {
-      console.log('refresh');
+      console.log('refresh')
       var me = this
       if (this.subjectId === 'new') {
         this.subject.id = 'new'
@@ -151,7 +151,7 @@ export default {
         this.services.call('getSubject', {
           id: this.subjectId
         }, function(data) {
-         console.log('getSubject');
+          console.log('getSubject')
           me.subject = data
           me.loading = false
         })

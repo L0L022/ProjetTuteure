@@ -196,7 +196,7 @@ protected:
   Question(const QVariantMap &m);
 
 public:
-  inline QString &title() { return _title; }
+  inline const QString &title() const { return _title; }
   void setTitle(const QString &title);
 
   static Question *fromMap(const QVariantMap &m);
