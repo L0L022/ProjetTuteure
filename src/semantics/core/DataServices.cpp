@@ -1,36 +1,35 @@
 #include <semantics/core/DataServices.hpp>
 
 #include <persistence/SQLite/DAOFactory.hpp>
+#include <functional>
 
 using namespace semantics::core;
 
 DataServices::DataServices()
-    :  _formsSharedData(std::make_unique<Forms::SharedData>())
-    , _questionsSharedData(std::make_unique<Form::Questions::SharedData>())
-    , _choicesSharedData(std::make_unique<ClosedQuestion::Choices::SharedData>())
-    , _subjectsSharedData(std::make_unique<Form::Subjects::SharedData>())
-    , _forms(_formsSharedData)
 {
-    std::unique_ptr<persistence::DAOFactory> factory = std::make_unique<persistence::SQLite::DAOFactory>(":memory:");
-    _dao_form.reset(factory->form());
-    _dao_question.reset(factory->question());
-    _dao_choice.reset(factory->choice());
-    _dao_subject.reset(factory->subject());
-    _dao_openedAnswer.reset(factory->openedAnswer());
-    _dao_closedAnswer.reset(factory->closedAnswer());
+    _factory = std::make_unique<persistence::SQLite::DAOFactory>("/tmp/bd.db");
+    _dao_form.reset(_factory->form());
+    _dao_question.reset(_factory->question());
+    _dao_choice.reset(_factory->choice());
+    _dao_subject.reset(_factory->subject());
+    _dao_openedAnswer.reset(_factory->openedAnswer());
+    _dao_closedAnswer.reset(_factory->closedAnswer());
 
-    load();
+    loadData();
 }
 
 DataServices::~DataServices()
 {
-    save();
+    saveData();
 }
 
-void DataServices::load()
-{/*
+void DataServices::loadData()
+{
+    resetSharedData();
+    _forms = std::make_unique<Forms>(_formsSharedData);
+
     QVector<persistence::Form> p_forms = _dao_form->search();
-    Forms s_forms(_formsSharedData);
+    Forms &s_forms = *_forms;
     for (const persistence::Form &p_f : p_forms) {
         std::unique_ptr<Form> s_f = std::make_unique<Form>(p_f.id, _questionsSharedData, _subjectsSharedData, p_f.modification_date);
         s_f->setName(p_f.name);
@@ -80,15 +79,15 @@ void DataServices::load()
             QVector<persistence::OpenedAnswer> p_openedAnswers = _dao_openedAnswer->search({{"subject", p_s.id}});
             for (const persistence::OpenedAnswer &p_oa : p_openedAnswers) {
                 std::unique_ptr<OpenedAnswer> s_oa = std::make_unique<OpenedAnswer>(p_oa.question, p_oa.modification_date);
-                s_oa->setWords(p_oa.words); // convert words
+                s_oa->setWords(p_oa.words.split('|')); // use JSON array
                 auto q = s_oa->question();
                 s_answers.insert(q, s_oa.release());
             }
 
             QVector<persistence::ClosedAnswer> p_closedAnswers = _dao_closedAnswer->search({{"subject", p_s.id}});
-            QHash<int, persistence::ClosedAnswer&> m_choices;
+            QHash<int, std::reference_wrapper<const persistence::ClosedAnswer>> m_choices;
             for (const persistence::ClosedAnswer &p_ca : p_closedAnswers) {
-                m_choices[p_ca.choice] = p_ca;
+                m_choices.insert(p_ca.choice, p_ca);
             }
 
             for (const auto it_q : s_questions) {
@@ -112,12 +111,14 @@ void DataServices::load()
         }
 
         s_forms.insert(std::move(s_f));
-    }*/
+    }
 }
 
-void DataServices::save()
-{/*
-    for (const auto it_f : _forms) {
+void DataServices::saveData()
+{
+    _dao_form->remove();
+
+    for (const auto it_f : *_forms) {
         const Form &s_f = *it_f->second;
         persistence::Form p_f;
         p_f.id = s_f.id();
@@ -151,7 +152,10 @@ void DataServices::save()
                     p_q.type = "multiple";
                     break;
                 }
+            }
+            _dao_question->save(p_q);
 
+            if (cq) {
                 for (const auto it_c : cq->choices()) {
                     const Choice &s_c = *it_c->second;
                     persistence::Choice p_c;
@@ -162,33 +166,72 @@ void DataServices::save()
                     _dao_choice->save(p_c);
                 }
             }
-            _dao_question->save(p_q);
         }
 
         for (const auto it_q : s_f.subjects()) {
-//            const Subject &s_s =
+            const Subject &s_s = *it_q->second;
+            persistence::Subject p_s;
+            p_s.id = s_s.id();
+            p_s.is_valid = s_s.isValid();
+            p_s.modification_date = s_s.modification_date();
+            p_s.form = p_f.id;
+            _dao_subject->save(p_s);
+
+
+            for (const auto it_a : s_s.answers()) {
+                const OpenedAnswer * oa = dynamic_cast<const OpenedAnswer*>(it_a->second);
+                if (oa) {
+                    persistence::OpenedAnswer p_oa;
+                    p_oa.question = oa->question();
+                    p_oa.modification_date = oa->modification_date();
+                    p_oa.subject = p_s.id;
+                    p_oa.words = oa->words().join('|'); // JSON array
+                    _dao_openedAnswer->save(p_oa);
+                }
+
+                const ClosedAnswer * ca = dynamic_cast<const ClosedAnswer*>(it_a->second);
+                if (ca) {
+                    persistence::ClosedAnswer p_ca;
+                    p_ca.subject = p_s.id;
+                    p_ca.modification_date = ca->modification_date();
+                    for (auto c : ca->choices()) {
+                        p_ca.choice = c;
+                        _dao_closedAnswer->save(p_ca);
+                    }
+                }
+            }
         }
-    }*/
+    }
 }
 
 QVariantMap DataServices::listForms()
 {
-
+    QVariantMap r;
+    for (auto it : *_forms) {
+        const Form &f = *it->second;
+        r[QString::number(f.id())] = f.toTinyMap();
+    }
+    return r;
 }
 
 QVariantMap DataServices::listSubjects(const Id id)
 {
-
+    QVariantMap r;
+    for (auto it : _forms->at(id).subjects()) {
+        const Subject &s = *it->second;
+        r[QString::number(s.id())] = s.toTinyMap();
+    }
+    return r;
 }
 
 QVariantMap DataServices::getForm(const Id id)
 {
-    return _forms.at(id).toMap();
+    return _forms->at(id).toMap();
 }
 
 QVariantMap DataServices::getSubject(const Id id)
 {
-    for (auto it : _forms) {
+    for (auto it : *_forms) {
         Form * form = it->second;
         const  Form::Subjects & subjects = form->subjects();
         auto it_sub = subjects.find(id);
@@ -199,36 +242,66 @@ QVariantMap DataServices::getSubject(const Id id)
     return QVariantMap();
 }
 
+QVariantMap DataServices::getNewSubject(const Id form)
+{
+    Subject::Answers answers;
+    const Form &f = _forms->at(form);
+
+    for (auto it_q : f.questions()) {
+        const Question * q = it_q->second;
+        auto id = q->id();
+        const OpenedQuestion * oq = dynamic_cast<const OpenedQuestion*>(q);
+        if (oq) {
+            std::unique_ptr<OpenedAnswer> oa = std::make_unique<OpenedAnswer>(id);
+            answers.insert(id, oa.release());
+        }
+
+        const ClosedQuestion * cq = dynamic_cast<const ClosedQuestion*>(q);
+        if (cq) {
+            std::unique_ptr<ClosedAnswer> ca = std::make_unique<ClosedAnswer>(id);
+            answers.insert(id, ca.release());
+        }
+    }
+
+    std::unique_ptr<Subject> s = std::make_unique<Subject>(takeSubjectId());
+    s->setAnswers(answers);
+
+    return s->toMap();
+}
+
 void DataServices::saveForm(const QVariantMap &form)
 {
     std::unique_ptr<Form> f(Form::fromMap(form));
-    if (_forms.count(f->id()) == 0) {
-        _forms.insert(std::move(f));
+    auto it = _forms->find(f->id());
+    if (it == _forms->end()) {
+        _forms->insert(std::move(f));
     } else {
-        _forms.at(f->id()).assignFromMap(form);
+        it->second->assignFromMap(form);
     }
 }
 
 void DataServices::saveSubject(const Id form, const QVariantMap &subject)
 {
-    Form & f = _forms.at(form);
+    Form & f = _forms->at(form);
     Form::Subjects subjects = f.subjects();
     std::unique_ptr<Subject> s(Subject::fromMap(subject));
-    if (subjects.count(s->id()) == 0) {
+    auto it = subjects.find(s->id());
+    if (it == subjects.end()) {
         subjects.insert(std::move(s));
     } else {
-        subjects.at(s->id()).assignFromMap(subject);
+        it->second->assignFromMap(subject);
     }
+    f.setSubjects(subjects);
 }
 
 void DataServices::deleteForm(const Id id)
 {
-    _forms.erase(id);
+    _forms->erase(id);
 }
 
 void DataServices::deleteSubject(const Id id)
 {
-    for (auto it : _forms) {
+    for (auto it : *_forms) {
         Form * form = it->second;
         const  Form::Subjects & subjects = form->subjects();
         auto it_sub = subjects.find(id);
@@ -258,4 +331,12 @@ DataServices::Id DataServices::takeQuestionId()
 DataServices::Id DataServices::takeChoiceId()
 {
     return _choicesSharedData->takeId();
+}
+
+void DataServices::resetSharedData()
+{
+    _formsSharedData = std::make_shared<Forms::SharedData>();
+    _questionsSharedData = std::make_shared<Form::Questions::SharedData>();
+    _choicesSharedData = std::make_shared<ClosedQuestion::Choices::SharedData>();
+    _subjectsSharedData = std::make_shared<Form::Subjects::SharedData>();
 }

@@ -328,7 +328,7 @@ bool ClosedAnswer::validMap(const QVariantMap &m) {
 
 QVariantMap ClosedAnswer::do_toMap() const {
   auto m = Answer::do_toMap();
-  m["choices"] = QVariant::fromValue(_choices);
+  m["choices"] = QVariant::fromValue(_choices).toList();
   return m;
 }
 
@@ -340,7 +340,7 @@ void ClosedAnswer::do_assignFromMap(const QVariantMap &m) {
 Data *ClosedAnswer::do_clone() const { return new ClosedAnswer(*this); }
 
 Subject::Subject(const IdData::Id id, const QDateTime &modification_date)
-    : IdData(id, modification_date) {}
+    : IdData(id, modification_date), _isValid(false) {}
 
 Subject::Subject(const QVariantMap &m) : IdData(m) { do_assignFromMap(m); }
 
@@ -359,6 +359,13 @@ void Subject::setAnswers(const Answers &answers) {
 }
 
 Subject *Subject::fromMap(const QVariantMap &m) { return new Subject(m); }
+
+QVariantMap Subject::toTinyMap() const
+{
+    auto m = IdData::do_toMap();
+    m["is_valid"] = _isValid;
+    return m;
+}
 
 QVariantMap Subject::do_toMap() const {
   auto m = IdData::do_toMap();
@@ -421,6 +428,15 @@ void Form::setSubjects(const Subjects &subjects) {
 
 Form *Form::fromMap(const QVariantMap &m) { return new Form(m); }
 
+QVariantMap Form::toTinyMap() const
+{
+    auto m = IdData::do_toMap();
+    m["name"] = _name;
+    m["description"] = _description;
+    m["creation_date"] = _creation_date;
+    return m;
+}
+
 QVariantMap Form::do_toMap() const {
   auto m = IdData::do_toMap();
   m["name"] = _name;
@@ -433,9 +449,9 @@ QVariantMap Form::do_toMap() const {
 
 void Form::do_assignFromMap(const QVariantMap &m) {
   IdData::do_assignFromMap(m);
-  _name = m.value("name").toString();
-  _description = m.value("description").toString();
-  _creation_date = m.value("creation_date").toDateTime();
+  _name = m.value("name", _name).toString();
+  _description = m.value("description", _description).toString();
+  _creation_date = m.value("creation_date", _creation_date).toDateTime();
   fromVariantMap(m.value("questions").toMap(), _questions);
   fromVariantMap(m.value("subjects").toMap(), _subjects);
 }

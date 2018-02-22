@@ -21,31 +21,6 @@ export default {
       type: Object,
       required: true
     }
-  },
-  data: function() {
-    return {
-      choices: []
-    }
-  },
-  created: function() {
-    var keys = Object.keys(this.question.choices)
-    if (keys.length !== 0) {
-      this.new_id = Math.max(...keys) + 1
-    }
-  },
-  methods: {
-    add: function() {
-      if (this.new_choice !== '') {
-        this.$set(this.question.choices, this.new_id, {
-          id: this.new_id,
-          label: this.new_choice
-        })
-        this.new_id = this.new_id + 1
-      }
-    },
-    remove: function(id) {
-      this.$delete(this.question.choices, id)
-    }
   }
 }
 </script>

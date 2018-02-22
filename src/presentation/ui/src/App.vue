@@ -2,6 +2,7 @@
 <el-container id="app">
   <el-main>
     <el-button @click="$router.back()">Retour</el-button>
+    <el-button @click="saveData()">Sauvegarger sur BDD</el-button>
     <router-view v-if="services !== null" :services="services"/>
   </el-main>
 </el-container>
@@ -28,6 +29,9 @@ export default {
         app.services = services
         app.loading.close()
       })
+      services.callError = function (e) {
+        app.$message.error('Une erreur est survenue : ' + e)
+      }
       this.loading = this.$loading({
         text: 'Connexion avec le serveur'
       })
@@ -46,6 +50,15 @@ export default {
           })
         }
       }
+    },
+    saveData () {
+      var me = this
+      this.services.call('saveData', {}, function () {
+        me.$message({
+          message: 'Sauvegarde terminée.',
+          type: 'success'
+        })
+      })
     }
   }
 }

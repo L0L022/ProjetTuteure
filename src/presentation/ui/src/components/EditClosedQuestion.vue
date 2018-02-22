@@ -14,7 +14,7 @@
   </el-table>
   <div style="margin-top: 20px">
     <el-col :span="16">
-      <el-input placeholder="Label" v-model="new_choice"></el-input>
+      <el-input @keyup.native.enter="add()" placeholder="Label du nouveau choix" v-model="new_choice"></el-input>
     </el-col>
     <el-col :span="8">
       <el-button @click="add()" type="primary">Ajouter un choix</el-button>
@@ -36,19 +36,19 @@ export default {
       required: true
     }
   },
-  data() {
+  data () {
     return {
       new_choice: ''
     }
   },
-  created: function() {
-   console.log(this.question.choices);
+  created: function () {
+    console.log(this.question.choices)
   },
   methods: {
-    add: function() {
+    add: function () {
       if (this.new_choice !== '') {
         var me = this
-        this.services.call('takeChoiceId', {}, function(data) {
+        this.services.call('takeChoiceId', {}, function (data) {
           me.$set(me.question.choices, data['id'], {
             id: data['id'],
             label: me.new_choice
@@ -57,7 +57,7 @@ export default {
         })
       }
     },
-    remove: function(id) {
+    remove: function (id) {
       this.$delete(this.question.choices, id)
     }
   }
