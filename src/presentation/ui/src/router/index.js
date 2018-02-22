@@ -5,6 +5,7 @@ import EditForm from '@/components/EditForm'
 import ViewForm from '@/components/ViewForm'
 import AnswerForm from '@/components/AnswerForm'
 import ListSubject from '@/components/ListSubject'
+import Graph from '@/components/Graph'
 
 Vue.use(Router)
 
@@ -41,6 +42,11 @@ export default new Router({
       name: 'ListSubject',
       component: ListSubject,
       props: true
+    },
+    {
+      path: '/graph',
+      name: 'Graph',
+      component: Graph
     }
   ]
 })
