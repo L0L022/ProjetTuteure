@@ -137,7 +137,7 @@ template <typename T> QVector<T> DAO<T>::search(const QVariantMap &where) {
 
   query_str += makeWhere(where);
 
-  //  qDebug() << query_str;
+    qDebug() << query_str;
 
   QSqlQuery query;
   prepareQuery(query, query_str);
@@ -168,7 +168,7 @@ template <typename T> void DAO<T>::save(const T &object) {
   v.back() = ')';
   query_str += v;
 
-  //  qDebug() << query_str;
+    qDebug() << query_str;
 
   QSqlQuery query;
   prepareQuery(query, query_str);
@@ -180,7 +180,7 @@ template <typename T> void DAO<T>::remove(const QVariantMap &where) {
   QString query_str = QString("DELETE FROM %1 ").arg(table.name);
   query_str += makeWhere(where);
 
-  //  qDebug() << query_str;
+    qDebug() << query_str;
 
   QSqlQuery query;
   prepareQuery(query, query_str);
