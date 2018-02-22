@@ -46,7 +46,8 @@ export default new Router({
     {
       path: '/graph',
       name: 'Graph',
-      component: Graph
+      component: Graph,
+      props: true
     }
   ]
 })

@@ -19,7 +19,7 @@ export default {
     }
   },
   created: function () {
-    this.initServices()
+    //this.initServices()
   },
   methods: {
     initServices () {
