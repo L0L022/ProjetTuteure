@@ -6,6 +6,7 @@
 #include <QDateTime>
 #include <QList>
 #include <QVariant>
+#include <QDebug>
 
 #include <boost/ptr_container/ptr_map.hpp>
 
@@ -121,7 +122,8 @@ public:
       ; // exception
   }
   void erase(const Id &id) { _map.erase(id); }
-  void erase(iterator first, iterator last) { _map.erase(first, last); }
+  iterator erase( iterator before ) { return _map.erase(before); }
+  iterator erase(iterator first, iterator last) { return _map.erase(first, last); }
   inline T &at(const Id &id) const {
     return const_cast<boost::ptr_map<Id, T> &>(_map).at(id);
   }
@@ -129,6 +131,8 @@ public:
   const_iterator find(const Id &id) const { return _map.find(id); }
   inline Id takeId() { return _sharedData->takeId(); }
   size_t count(const Id &id) const { return _map.count(id); }
+  void clear() { _map.clear(); }
+  size_t size() const {return _map.size();}
 
   bool operator==(const IdDataMap<T> &m) const { return _map == m._map; }
   bool operator!=(const IdDataMap<T> &m) const { return _map != m._map; }
@@ -165,27 +169,41 @@ template <typename T> QVariantMap toVariantMap(const IdDataMap<T> &map) {
 template <typename T>
 void fromVariantMap(const QVariantMap &src,
                     boost::ptr_map<IdData::Id, T> &dest) {
+  for (auto it = dest.begin(); it != dest.end();) {
+    if (!src.contains(QString::number(it->first))) {
+        it = dest.erase(it);
+    } else {
+        ++it;
+    }
+  }
   for (auto it = src.begin(); it != src.end(); ++it) {
     auto key = it.key().toInt();
     auto value = it.value().toMap();
     auto i = dest.find(key);
-    if (i != dest.end())
-      i->second->assignFromMap(value);
+    if (i == dest.end())
+        dest.insert(key, T::fromMap(value));
     else
-      dest.insert(key, T::fromMap(value));
+        i->second->assignFromMap(value);
   }
 }
 
 template <typename T>
 void fromVariantMap(const QVariantMap &src, IdDataMap<T> &dest) {
+    for (auto it = dest.begin(); it != dest.end();) {
+      if (!src.contains(QString::number(it->second->id()))) {
+          it = dest.erase(it);
+      } else {
+          ++it;
+      }
+    }
   for (auto it = src.begin(); it != src.end(); ++it) {
     auto key = it.key().toInt();
     auto value = it.value().toMap();
     auto i = dest.find(key);
-    if (i != dest.end())
-      i->second->assignFromMap(value);
+    if (i == dest.end())
+        dest.insert(std::unique_ptr<T>(T::fromMap(value)));
     else
-      dest.insert(std::unique_ptr<T>(T::fromMap(value)));
+        i->second->assignFromMap(value);
   }
 }
 
@@ -414,6 +432,7 @@ public:
   bool areAnswersValid() const;
 
   static Subject *fromMap(const QVariantMap &m);
+  QVariantMap toTinyMap() const;
 
 protected:
   Subject(const QVariantMap &m);
@@ -460,6 +479,7 @@ public:
   void setSubjects(const Subjects &subjects);
 
   static Form *fromMap(const QVariantMap &m);
+  QVariantMap toTinyMap() const;
 
 protected:
   Form(const QVariantMap &m);
