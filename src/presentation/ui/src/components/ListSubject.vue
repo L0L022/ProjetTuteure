@@ -6,7 +6,7 @@
     </el-table-column>
     <el-table-column label="Status">
       <template slot-scope="scope">
-       <el-tag :type="scope.row.isValid ? 'success' : 'danger'">{{scope.row.isValid ? 'Validé' : 'Non validé'}}</el-tag>
+       <el-tag :type="scope.row.is_valid ? 'success' : 'danger'">{{scope.row.is_valid ? 'Validé' : 'Non validé'}}</el-tag>
       </template>
     </el-table-column>
     <el-table-column label="Opérations">
@@ -36,38 +36,25 @@ export default {
       required: true
     }
   },
-  data() {
+  data () {
     return {
-      subjects: {
-        0: {
-          id: 0,
-          isValid: false
-        },
-        1: {
-          id: 1,
-          isValid: true
-        },
-        2: {
-          id: 2,
-          isValid: false
-        }
-      }
+      subjects: {}
     }
   },
-  created: function() {
+  created: function () {
     this.refresh()
   },
   methods: {
-    refresh: function() {
-      console.log('refresh');
+    refresh: function () {
+      console.log('refresh')
       var me = this
       this.services.call('listSubjects', {
         id: this.id
-      }, function(data) {
+      }, function (data) {
         me.subjects = data.subjects
       })
     },
-    add: function() {
+    add: function () {
       console.log('Add subject')
       this.$router.push({
         name: 'AnswerForm',
@@ -77,16 +64,16 @@ export default {
         }
       })
     },
-    remove: function(id) {
+    remove: function (id) {
       console.log('Remove subject : ' + id)
       var me = this
       this.services.call('deleteSubject', {
         id: id
-      }, function(data) {
+      }, function (data) {
         me.refresh()
       })
     },
-    edit: function(id) {
+    edit: function (id) {
       console.log('Edit subject : ' + id)
       this.$router.push({
         name: 'AnswerForm',
@@ -98,7 +85,7 @@ export default {
     }
   },
   watch: {
-    id: function() {
+    id: function () {
       this.refresh()
     }
   }

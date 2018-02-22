@@ -1,13 +1,13 @@
 <template>
 <div class="AnswerForm" v-if="!loading">
   <h1>Édition du sujet n°{{ subject.id }} du formulaire n°{{ form.id }}</h1> Nom : {{ form.name }}<br> Description : {{ form.description }}<br> Est validé :
-  <el-switch v-model="subject.isValid"></el-switch><br>
+  <el-switch v-model="subject.is_valid"></el-switch><br>
   <el-table :data="Object.values(form.questions)" default-expand-all style="width: 100%">
     <el-table-column type="expand">
       <template slot-scope="scope">
-           <AnswerClosedQuestion v-if="(scope.row.type === 'unique') || (scope.row.type ==='multiple')" :question="scope.row" :answer="subject.answers[scope.row.id]"></AnswerClosedQuestion>
-           <AnswerOpenedQuestion v-if="scope.row.type === 'opened'" :question="scope.row" :answer="subject.answers[scope.row.id]"></AnswerOpenedQuestion>
-         </template>
+        <AnswerClosedQuestion v-if="(scope.row.type === 'unique') || (scope.row.type ==='multiple')" :question="scope.row" :answer="subject.answers[scope.row.id]"></AnswerClosedQuestion>
+        <AnswerOpenedQuestion v-if="scope.row.type === 'opened'" :question="scope.row" :answer="subject.answers[scope.row.id]"></AnswerOpenedQuestion>
+      </template>
     </el-table-column>
     <el-table-column label="Titre" prop="title">
     </el-table-column>
@@ -34,136 +34,78 @@ export default {
       required: true
     }
   },
-  data() {
+  data () {
     return {
       types: [{
-          value: 'multiple',
-          label: 'Choix multiple'
-        },
-        {
-          value: 'unique',
-          label: 'Choix unique'
-        },
-        {
-          value: 'opened',
-          label: 'Ouverte'
-        }
+        value: 'multiple',
+        label: 'Choix multiple'
+      },
+      {
+        value: 'unique',
+        label: 'Choix unique'
+      },
+      {
+        value: 'opened',
+        label: 'Ouverte'
+      }
       ],
       form: {
         id: 0,
-        name: 'Étude de l\'IUT d\'Arles',
-        description: 'info2 - décembre 2018',
-        questions: {
-          0: {
-            id: 0,
-            title: 'Que pensez-vous quand je vous dis IUT ?',
-            type: 'opened',
-            nbAnswers: 10,
-            choices: {}
-          },
-          1: {
-            id: 1,
-            title: 'Votre matière préférée',
-            type: 'unique',
-            nbAnswers: 0,
-            choices: {
-              0: {
-                id: 0,
-                label: 'Anglais'
-              },
-              1: {
-                id: 1,
-                label: 'Algo avancé'
-              },
-              2: {
-                id: 2,
-                label: 'Mathématiques'
-              }
-            }
-          },
-          2: {
-            id: 2,
-            title: 'Vos langages préférés',
-            type: 'multiple',
-            nbAnswers: 0,
-            choices: {
-              0: {
-                id: 0,
-                label: 'C++'
-              },
-              1: {
-                id: 1,
-                label: 'PHP'
-              },
-              2: {
-                id: 2,
-                label: 'BASH'
-              }
-            }
-          }
-        }
+        name: '',
+        description: '',
+        questions: {}
       },
       subject: {
         id: 0,
-        isValid: false,
-        answers: {
-          0: {
-            id: 0,
-            words: ['un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix']
-          },
-          1: {
-            id: 1,
-            choice: 2
-          },
-          2: {
-            id: 2,
-            choices: [
-              0,
-              2
-            ]
-          }
-        }
+        is_valid: false,
+        answers: {}
       },
       new_question_title: '',
       new_question_id: 0,
       loading: true
     }
   },
-  created: function() {
+  created: function () {
     var me = this
     this.services.call('getForm', {
       id: this.formId
-    }, function(data) {
+    }, function (data) {
       console.log('getForm')
-      me.form = data
+      me.$set(me, 'form', data)
       me.refresh()
     })
   },
   methods: {
-    refresh: function() {
+    refresh: function () {
       console.log('refresh')
       var me = this
+      this.loading = true
       if (this.subjectId === 'new') {
         this.subject.id = 'new'
-        this.loading = false
+        this.services.call('getNewSubject', {
+          form: this.formId
+        }, function (data) {
+          console.log('getNewSubject')
+          me.$set(me, 'subject', data)
+          me.loading = false
+        })
       } else {
-        this.loading = true
         this.services.call('getSubject', {
           id: this.subjectId
-        }, function(data) {
+        }, function (data) {
           console.log('getSubject')
-          me.subject = data
+          me.$set(me, 'subject', data)
           me.loading = false
         })
       }
     },
-    save: function() {
+    save: function () {
       console.log('Save : ' + JSON.stringify(this.subject))
       var me = this
       if (this.subject.id === 'new') {
-        this.services.call('takeSubjectId', {}, function(data) {
+        this.services.call('takeSubjectId', {}, function (data) {
           me.subject.id = data['id']
-          me.services.call('saveSubject', me.subject, function(data) {
+          me.services.call('saveSubject', {form: me.form.id, subject: me.subject}, function (data) {
             me.$router.replace({
               name: 'AnswerForm',
               params: {
@@ -173,7 +115,7 @@ export default {
           })
         })
       } else {
-        this.services.call('saveSubject', this.subject, function(data) {
+        this.services.call('saveSubject', {form: me.form.id, subject: me.subject}, function (data) {
           me.refresh()
         })
       }

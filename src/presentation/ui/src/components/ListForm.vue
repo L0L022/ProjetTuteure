@@ -38,38 +38,27 @@ export default {
   name: 'ListForm',
   props: {
     services: {
-     type: Object,
+      type: Object,
       required: true
     }
   },
-  data() {
+  data () {
     return {
-      forms: {
-        0: {
-          'id': 0,
-          'name': 'Onaliok hojgi uzadus iga rep ogiak tugid.',
-          'description': 'Agsafjuc sog va talla ligus dorin azideelo no duhfuh cot taeca wocukof pa weti vahvap.'
-        },
-        3: {
-          'id': 3,
-          'name': 'Hemaba ezobej hub goses de.',
-          'description': 'Vugi fos paswuv ib mezvu pu su jelsuw zouci wu hum za mari pitosom vozpuf be hapol.'
-        }
-      }
+      forms: {}
     }
   },
-  created: function() {
+  created: function () {
     this.refresh()
   },
   methods: {
-    refresh: function() {
-      console.log('refresh');
+    refresh: function () {
+      console.log('refresh')
       var me = this
-      this.services.call('listForms', {}, function(data) {
+      this.services.call('listForms', {}, function (data) {
         me.forms = data.forms
       })
     },
-    add: function() {
+    add: function () {
       console.log('Add form')
       this.$router.push({
         name: 'EditForm',
@@ -78,14 +67,14 @@ export default {
         }
       })
     },
-    remove: function(id) {
+    remove: function (id) {
       console.log('Remove form : ' + id)
       var me = this
-      this.services.call('deleteForm', {id: id}, function(data) {
-       me.refresh()
+      this.services.call('deleteForm', {id: id}, function (data) {
+        me.refresh()
       })
     },
-    edit: function(id) {
+    edit: function (id) {
       console.log('Edit form : ' + id)
       this.$router.push({
         name: 'EditForm',
@@ -94,7 +83,7 @@ export default {
         }
       })
     },
-    viewForm: function(id) {
+    viewForm: function (id) {
       console.log('View form : ' + id)
       this.$router.push({
         name: 'ViewForm',
@@ -103,7 +92,7 @@ export default {
         }
       })
     },
-    viewAnswers: function(id) {
+    viewAnswers: function (id) {
       console.log('View answers : ' + id)
       this.$router.push({
         name: 'ListSubject',

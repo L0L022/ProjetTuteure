@@ -43,7 +43,7 @@
     </el-select>
   </el-col>
   <el-col :span="8">
-    <el-input placeholder="Titre de la nouvelle question" v-model="new_question_title"></el-input>
+    <el-input @keyup.native.enter="add()" placeholder="Titre de la nouvelle question" v-model="new_question_title"></el-input>
   </el-col>
   <el-col :span="8">
     <el-button @click="add()">Nouvelle question</el-button>
@@ -67,120 +67,78 @@ export default {
       required: true
     }
   },
-  data() {
+  data () {
     return {
       types: [{
-          value: 'multiple',
-          label: 'Choix multiple'
-        },
-        {
-          value: 'unique',
-          label: 'Choix unique'
-        },
-        {
-          value: 'opened',
-          label: 'Ouverte'
-        }
+        value: 'multiple',
+        label: 'Choix multiple'
+      },
+      {
+        value: 'unique',
+        label: 'Choix unique'
+      },
+      {
+        value: 'opened',
+        label: 'Ouverte'
+      }
       ],
       form: {
         id: 0,
-        name: 'Étude de l\'IUT d\'Arles',
-        description: 'info2 - décembre 2018',
-        questions: {
-          0: {
-            id: 0,
-            title: 'Que pensez-vous quand je vous dis IUT ?',
-            type: 'opened',
-            nbAnswers: 10,
-            choices: {}
-          },
-          1: {
-            id: 1,
-            title: 'Votre matière préférée',
-            type: 'unique',
-            nbAnswers: 0,
-            choices: {
-              0: {
-                id: 0,
-                label: 'Anglais'
-              },
-              1: {
-                id: 1,
-                label: 'Algo avancé'
-              },
-              2: {
-                id: 2,
-                label: 'Mathématiques'
-              }
-            }
-          },
-          2: {
-            id: 2,
-            title: 'Vos langages préférés',
-            type: 'multiple',
-            nbAnswers: 0,
-            choices: {
-              0: {
-                id: 0,
-                label: 'C++'
-              },
-              1: {
-                id: 1,
-                label: 'PHP'
-              },
-              2: {
-                id: 2,
-                label: 'BASH'
-              }
-            }
-          }
-        }
+        name: '',
+        description: '',
+        questions: {}
       },
       new_question_title: '',
       new_question_type: null
     }
   },
-  created: function() {
+  created: function () {
     this.refresh()
   },
   methods: {
-    refresh: function() {
-      console.log('refresh');
+    refresh: function () {
+      console.log('refresh')
       if (this.id === 'new') {
         this.form.id = 'new'
       } else {
         var me = this
         this.services.call('getForm', {
           id: this.id
-        }, function(data) {
-          me.form = data
+        }, function (data) {
+          me.$set(me, 'form', data)
         })
       }
     },
-    add: function() {
+    add: function () {
       if (this.new_question_title !== '' && this.new_question_type !== null) {
         var me = this
-        this.services.call('takeQuestionId', {}, function(data) {
+        this.services.call('takeQuestionId', {}, function (data) {
           me.$set(me.form.questions, data['id'], {
             id: data['id'],
             title: me.new_question_title,
             type: me.new_question_type,
-            nbAnswers: 0,
+            nb_words: 1,
             choices: {}
           })
+          me.new_question_title = ''
         })
       }
     },
-    remove: function(id) {
+    remove: function (id) {
       this.$delete(this.form.questions, id)
     },
-    save: function() {
+    save: function () {
       console.log('Save : ' + JSON.stringify(this.form))
       var me = this
       if (this.form.id === 'new') {
-        this.services.call('takeFormId', {}, function(data) {
+        this.services.call('takeFormId', {}, function (data) {
           me.form.id = data['id']
-          me.services.call('saveForm', me.form, function(data) {
+          me.services.call('saveForm', me.form, function (data) {
+            me.$message({
+              message: 'Le nouveau formulaire a bien été sauvegardé.',
+              type: 'success'
+            })
+
             me.$router.replace({
               name: 'EditForm',
               params: {
@@ -190,14 +148,18 @@ export default {
           })
         })
       } else {
-        this.services.call('saveForm', this.form, function(data) {
+        this.services.call('saveForm', this.form, function (data) {
+          me.$message({
+            message: 'Le formulaire a bien été enregistrer.',
+            type: 'success'
+          })
           me.refresh()
         })
       }
     }
   },
   watch: {
-    id: function() {
+    id: function () {
       this.refresh()
     }
   },

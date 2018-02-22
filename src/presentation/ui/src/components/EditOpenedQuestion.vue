@@ -1,6 +1,6 @@
 <template>
 <div class="EditOpenedQuestion">
-  <el-input-number v-model="question.nbAnswers" :min="1" :max="99"></el-input-number>
+  <el-input-number v-model="question.nb_words" :min="1" :max="99"></el-input-number>
 </div>
 </template>
 
