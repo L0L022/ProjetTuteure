@@ -7,7 +7,11 @@ import router from './router'
 import ElementUI from 'element-ui'
 import locale from 'element-ui/lib/locale/lang/fr'
 import 'element-ui/lib/theme-chalk/index.css'
+
+import VueCharts from 'vue-charts'
+
 Vue.use(ElementUI, { locale })
+Vue.use(VueCharts)
 
 Vue.config.productionTip = false
 
