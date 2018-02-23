@@ -323,18 +323,22 @@ ClosedAnswer *ClosedAnswer::fromMap(const QVariantMap &m) {
 }
 
 bool ClosedAnswer::validMap(const QVariantMap &m) {
-  return m.contains("choices") && m.value("choices").canConvert<Choices>();
+  return m.contains("choices") && m.value("choices").canConvert<QVariantList>();
 }
 
 QVariantMap ClosedAnswer::do_toMap() const {
   auto m = Answer::do_toMap();
-  m["choices"] = QVariant::fromValue(_choices).toList();
+  m["choices"] = toVariantList(_choices);
+  if (_choices.size() > 0)
+    m["choice"] = _choices.first();
   return m;
 }
 
 void ClosedAnswer::do_assignFromMap(const QVariantMap &m) {
   Answer::do_assignFromMap(m);
-  _choices = m.value("choices").value<Choices>();
+  _choices = fromVariantList<Id>(m.value("choices").value<QVariantList>());
+  if (m.contains("choice"))
+      _choices << m.value("choice").value<Id>();
 }
 
 Data *ClosedAnswer::do_clone() const { return new ClosedAnswer(*this); }

@@ -325,6 +325,27 @@ inline ClosedQuestion *new_clone(const ClosedQuestion &q) {
   return dynamic_cast<ClosedQuestion *>(q.clone());
 }
 
+template <typename T>
+QVariantList toVariantList( const QList<T> &list )
+{
+    QVariantList newList;
+    foreach( const T &item, list )
+        newList << item;
+
+    return newList;
+}
+
+template <typename T>
+QList<T> fromVariantList( const QVariantList &list )
+{
+    QList<T> newList;
+    foreach( const QVariant &item, list )
+        if (item.canConvert<T>())
+            newList << item.value<T>();
+
+    return newList;
+}
+
 class Answer : public Data {
 public:
   using Id = IdData::Id;
