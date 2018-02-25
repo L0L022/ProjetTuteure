@@ -22,6 +22,7 @@ configuration:
 
 install:
   - ps: Install-Product node $env:nodejs_version
+  - set PATH=C:\Qt\5.10.0\msvc2017_64\bin;%PATH%
 
 cache:
   - src\presentation\ui\node_modules

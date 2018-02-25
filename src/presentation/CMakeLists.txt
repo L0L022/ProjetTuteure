@@ -21,7 +21,7 @@ endif()
 
 message(STATUS "presentation ui: generate ui.qrc")
 if(WIN32)
-execute_process(COMMAND ${Qt5Core_RCC_EXECUTABLE} -o ui.qrc -project
+execute_process(COMMAND cmd /c ${Qt5Core_RCC_EXECUTABLE} -o ui.qrc -project
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui/dist)
 else()
 execute_process(COMMAND ${Qt5Core_RCC_EXECUTABLE} -o ui.qrc -project
