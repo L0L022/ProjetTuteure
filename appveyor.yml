@@ -43,6 +43,10 @@ artifacts:
   - path: build\src\Release\app.exe
     name: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_BUILD_VERSION)-$(PLATFORM)
 
+before_deploy:
+  - windeployqt build\src\Release\app.exe
+  - tree .
+
 deploy:
 - provider: BinTray
   username: l0l022
