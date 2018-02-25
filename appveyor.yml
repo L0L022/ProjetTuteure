@@ -12,6 +12,8 @@ image: Visual Studio 2017
 
 environment:
   nodejs_version: "9"
+  bintray_key:
+    secure: u0wfFz6Hkdwsfopz+Zpyp5wCY7TFCkDDnwY6DiWMBWz7WCDG+M+NXn7M/HW/IRmp
 
 platform:
   - x64
@@ -39,13 +41,13 @@ build:
   verbosity: minimal
   project: $(APPVEYOR_BUILD_FOLDER)\build\$(APPVEYOR_PROJECT_NAME).sln
 
+after_build:
+  - windeployqt build\src\Release\app.exe
+  - tree .
+
 artifacts:
   - path: build\src\Release\app.exe
     name: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_BUILD_VERSION)-$(PLATFORM)
-
-before_deploy:
-  - windeployqt build\src\Release\app.exe
-  - tree .
 
 deploy:
 - provider: BinTray
