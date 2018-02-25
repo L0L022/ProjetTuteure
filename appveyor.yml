@@ -46,13 +46,13 @@ build:
 after_build:
   - cd build
   - mkdir ProjetTuteure && cd ProjetTuteure
-  - cp ..\\src\\Release\\app.exe .
+  - cp ..\\src\\%CONFIGURATION%\\app.exe .
   - windeployqt app.exe
   - cd ..\\..
 
 artifacts:
   - path: build\ProjetTuteure
-    name: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_BUILD_VERSION)-$(PLATFORM)
+    name: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_BUILD_VERSION)-$(PLATFORM)-$(CONFIGURATION)
 
 deploy:
 - provider: BinTray
