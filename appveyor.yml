@@ -12,8 +12,6 @@ image: Visual Studio 2017
 
 environment:
   nodejs_version: "9"
-  bintray_key:
-    secure: u0wfFz6Hkdwsfopz+Zpyp5wCY7TFCkDDnwY6DiWMBWz7WCDG+M+NXn7M/HW/IRmp
 
 platform:
   - x64
@@ -49,17 +47,17 @@ after_build:
   - mkdir ProjetTuteure && cd ProjetTuteure
   - cp ..\\src\\Release\\app.exe .
   - windeployqt app.exe
-  - tree .
+  - tree . /f /a
 
 artifacts:
-  - path: build\src\Release\app.exe
+  - path: build\ProjetTuteure
     name: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_BUILD_VERSION)-$(PLATFORM)
 
 deploy:
 - provider: BinTray
   username: l0l022
   api_key:
-    secure: $env:bintray_key
+    secure: u0wfFz6Hkdwsfopz+Zpyp5wCY7TFCkDDnwY6DiWMBWz7WCDG+M+NXn7M/HW/IRmp
   subject: l0l022
   repo: Windows
   package: ProjetTuteure
