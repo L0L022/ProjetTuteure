@@ -1,16 +1,20 @@
 set(SRC MainWindow.cpp)
 set(RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ui/dist/ui.qrc)
 
-add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/ui/dist/index.html
-    COMMAND npm install
-    COMMAND npm run build
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui)
+message(STATUS "presentation ui: npm install")
+execute_process(COMMAND npm install
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui
+                OUTPUT_QUIET)
 
-add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/ui/dist/ui.qrc
-    COMMAND rm -f ui.qrc
-    COMMAND rcc -o ui.qrc -project
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/ui/dist/index.html
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui/dist)
+message(STATUS "presentation ui: npm run build")
+execute_process(COMMAND npm run build
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui
+                OUTPUT_QUIET)
+
+message(STATUS "presentation ui: generate ui.qrc")
+execute_process(COMMAND rcc -o ui.qrc -project
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui/dist
+                OUTPUT_QUIET)
 
 FILE(GLOB HEADERS ${INCLUDE_DIR}/presentation/*.hpp)
 
