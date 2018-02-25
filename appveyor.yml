@@ -28,9 +28,9 @@ test_script:
   - npm --version
 
 before_build:
-    - tree .
+    - tree . /f /a
     - mkdir build && cd build && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_PREFIX_PATH="C:\\Qt\\5.10.0\\msvc2017_64" -DBOOST_ROOT="C:\\Libraries\\boost_1_65_1" ..
-    - tree .
+    - tree . /f /a
 
 build:
   parallel: true
@@ -38,7 +38,7 @@ build:
   project: $(APPVEYOR_BUILD_FOLDER)\build\$(APPVEYOR_PROJECT_NAME).sln
 
 on_failure:
-    - tree .
+    - tree . /f /a
 
 deploy:
 - provider: BinTray
