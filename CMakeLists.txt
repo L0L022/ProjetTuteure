@@ -25,7 +25,7 @@ if (BUILD_PRESENTATION)
 endif()
 
 if (BUILD_SEMANTICS)
-    find_package(Boost 1.66 REQUIRED)
+    find_package(Boost 1.65 REQUIRED)
     include_directories(${Boost_INCLUDE_DIR})
 endif()
 
