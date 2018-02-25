@@ -3,18 +3,15 @@ set(RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ui/dist/ui.qrc)
 
 message(STATUS "presentation ui: npm install")
 execute_process(COMMAND npm install
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui
-                OUTPUT_QUIET)
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui)
 
 message(STATUS "presentation ui: npm run build")
 execute_process(COMMAND npm run build
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui
-                OUTPUT_QUIET)
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui)
 
 message(STATUS "presentation ui: generate ui.qrc")
 execute_process(COMMAND rcc -o ui.qrc -project
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui/dist
-                OUTPUT_QUIET)
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui/dist)
 
 FILE(GLOB HEADERS ${INCLUDE_DIR}/presentation/*.hpp)
 
