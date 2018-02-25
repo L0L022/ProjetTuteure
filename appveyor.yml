@@ -22,6 +22,7 @@ configuration:
 
 install:
   - ps: Install-Product node $env:nodejs_version
+  - set VCINSTALLDIR="C:\Program Files (x86)\Microsoft Visual Studio 15.0\VC\"
   - set PATH=C:\Qt\5.10.0\msvc2017_64\bin;%PATH%
 
 cache:
@@ -47,7 +48,7 @@ after_build:
   - mkdir ProjetTuteure && cd ProjetTuteure
   - cp ..\\src\\Release\\app.exe .
   - windeployqt app.exe
-  - tree . /f /a
+  - cd ..\\..
 
 artifacts:
   - path: build\ProjetTuteure
