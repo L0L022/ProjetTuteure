@@ -40,8 +40,8 @@ build:
   project: $(APPVEYOR_BUILD_FOLDER)\build\$(APPVEYOR_PROJECT_NAME).sln
 
 artifacts:
-  - path: 'build\src\Release\app.exe'
-  - name: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_BUILD_VERSION)-$(PLATFORM)
+  - path: build\src\Release\app.exe
+   name: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_BUILD_VERSION)-$(PLATFORM)
 
 deploy:
 - provider: BinTray
