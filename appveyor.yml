@@ -34,7 +34,10 @@ test_script:
   - npm --version
 
 before_build:
-    - mkdir build && cd build && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_PREFIX_PATH="C:\\Qt\\5.10.0\\msvc2017_64" -DBOOST_ROOT="C:\\Libraries\\boost_1_65_1" ..
+    - mkdir build
+    - cd build
+    - cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_PREFIX_PATH="C:\\Qt\\5.10.0\\msvc2017_64" -DBOOST_ROOT="C:\\Libraries\\boost_1_65_1" ..
+    - cd ..
 
 build:
   parallel: true
@@ -46,7 +49,7 @@ after_build:
   - tree .
 
 artifacts:
-  - path: build\src\Release\app.exe
+  - path: $(APPVEYOR_BUILD_FOLDER)\build\src\Release\app.exe
     name: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_BUILD_VERSION)-$(PLATFORM)
 
 deploy:
