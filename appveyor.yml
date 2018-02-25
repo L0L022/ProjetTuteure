@@ -41,7 +41,7 @@ build:
 
 artifacts:
   - path: build\src\Release\app.exe
-   name: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_BUILD_VERSION)-$(PLATFORM)
+    name: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_BUILD_VERSION)-$(PLATFORM)
 
 deploy:
 - provider: BinTray
