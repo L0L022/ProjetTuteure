@@ -45,11 +45,14 @@ build:
   project: $(APPVEYOR_BUILD_FOLDER)\build\$(APPVEYOR_PROJECT_NAME).sln
 
 after_build:
-  - windeployqt build\src\Release\app.exe
+  - cd build
+  - mkdir ProjetTuteure && cd ProjetTuteure
+  - cp $(APPVEYOR_BUILD_FOLDER)\build\src\Release\app.exe .
+  - windeployqt app.exe
   - tree .
 
 artifacts:
-  - path: $(APPVEYOR_BUILD_FOLDER)\build\src\Release\app.exe
+  - path: build\src\Release\app.exe
     name: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_BUILD_VERSION)-$(PLATFORM)
 
 deploy:
