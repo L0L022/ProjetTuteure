@@ -37,6 +37,9 @@ build:
   verbosity: normal
   project: $(APPVEYOR_BUILD_FOLDER)\$(APPVEYOR_PROJECT_NAME).sln
 
+on_failure:
+    - tree .
+
 deploy:
 - provider: BinTray
   username: l0l022
