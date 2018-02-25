@@ -10,7 +10,7 @@ execute_process(COMMAND npm run build
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui)
 
 message(STATUS "presentation ui: generate ui.qrc")
-execute_process(COMMAND rcc -o ui.qrc -project
+execute_process(COMMAND ${Qt5Core_RCC_EXECUTABLE} -o ui.qrc -project
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui/dist)
 
 FILE(GLOB HEADERS ${INCLUDE_DIR}/presentation/*.hpp)
