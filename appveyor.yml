@@ -47,7 +47,7 @@ build:
 after_build:
   - cd build
   - mkdir ProjetTuteure && cd ProjetTuteure
-  - cp $(APPVEYOR_BUILD_FOLDER)\build\src\Release\app.exe .
+  - cp ..\\src\\Release\\app.exe .
   - windeployqt app.exe
   - tree .
 
