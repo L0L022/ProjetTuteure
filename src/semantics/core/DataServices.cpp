@@ -7,7 +7,7 @@ using namespace semantics::core;
 
 DataServices::DataServices()
 {
-    _factory = std::make_unique<persistence::SQLite::DAOFactory>("/root/db.db");
+    _factory = std::make_unique<persistence::SQLite::DAOFactory>(":memory:");
     _dao_form.reset(_factory->form());
     _dao_question.reset(_factory->question());
     _dao_choice.reset(_factory->choice());

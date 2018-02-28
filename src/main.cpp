@@ -21,7 +21,7 @@ int main(int argc, char **argv) {
 
       r = app.exec();
   } catch (const std::exception &e) {
-      QMessageBox::critical(nullptr, QCoreApplication::translate("main", "An exception occurred"), e.what());
+      QMessageBox::critical(nullptr, QCoreApplication::translate("main", "An exception occurred"), QString::fromLocal8Bit(e.what()));
   }
 
   return r;
