@@ -17,9 +17,8 @@ platform:
   - x64
 
 configuration:
-  matrix:
-    - Release
-    - Debug
+  - Release
+  - Debug
 
 install:
   - ps: Install-Product node $env:nodejs_version
