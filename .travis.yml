@@ -1,0 +1,88 @@
+# This will run on Travis' 'new' container-based infrastructure
+dist: trusty
+sudo: required
+language: cpp
+
+# Blacklist
+branches:
+  except:
+    - gh-pages
+
+# Environment variables
+env:
+  global:
+    - GH_REPO_NAME: SuperProjetCPP
+    - DOXYFILE: $TRAVIS_BUILD_DIR/build/docs/DOXYFILE
+    - GH_REPO_REF: github.com/L0L022/ProjetTuteure.git
+    - DOC_HTML_DIR: $TRAVIS_BUILD_DIR/build/html
+    - CTEST_OUTPUT_ON_FAILURE: 1
+    - DEPS_DIR: $HOME/deps
+
+# Install dependencies
+addons:
+  apt:
+    sources:
+      - 'ubuntu-toolchain-r-test'
+      - 'george-edison55-precise-backports'
+    packages:
+      - graphviz
+      - curl
+      - g++-8
+      - gcc-8
+
+before_install:
+  - sudo add-apt-repository ppa:beineri/opt-qt510-trusty -y
+  - sudo apt-get update -qq
+      
+install:
+  - echo -en 'travis_fold:start:qt\\r'
+  - sudo apt-get -y install qt510base qt510tools qt510translations qt510webchannel qt510webengine qt510websockets
+  - source /opt/qt*/bin/qt*-env.sh
+  - echo -en 'travis_fold:end:qt\\r'
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-8" CC="gcc-8"; fi
+  - mkdir -p ${DEPS_DIR} && cd ${DEPS_DIR}
+  - |
+    if [ -z "$(ls -A cmake)" ]; then
+      CMAKE_URL="https://cmake.org/files/v3.8/cmake-3.8.2-Linux-x86_64.tar.gz"
+      mkdir cmake && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
+    fi
+    export PATH=${DEPS_DIR}/cmake/bin:${PATH}
+  - cmake --version
+  - |
+    if [ -z "$(ls -A doxygen)" ]; then
+      DOXYGEN_URL="http://ftp.stack.nl/pub/users/dimitri/doxygen-1.8.11.linux.bin.tar.gz"
+      mkdir doxygen && travis_retry wget --quiet -O - ${DOXYGEN_URL} | tar --strip-components=1 -xz -C doxygen
+    fi
+    export PATH=${DEPS_DIR}/doxygen/bin:${PATH}
+    doxygen --version
+  - echo -en 'travis_fold:start:boost\\r'
+  - |
+    if [ -z "$(ls -A boost-install)" ]; then
+      curl -sL -o boost.tar.bz2 "https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.tar.bz2"
+      tar xf boost.tar.bz2
+      cd boost_1_66_0
+      ./bootstrap.sh
+      ./b2 -j2 -d0 --prefix="$DEPS_DIR/boost-install" install
+      cd ..
+      rm -rf boost_1_66_0
+    fi
+  - echo -en 'travis_fold:end:boost\\r'
+  - cd $TRAVIS_BUILD_DIR
+
+cache:
+  directories:
+  - $DEPS_DIR
+
+script:
+  - echo -en 'travis_fold:start:cmake\\r'
+  - mkdir build && cd build
+  - cmake .. -DCMAKE_BUILD_TYPE=Debug -DBOOST_ROOT=$DEPS_DIR/boost-install
+  - echo -en 'travis_fold:end:cmake\\r'
+  - echo -en 'travis_fold:start:test\\r'
+  - echo -en 'travis_fold:end:test\\r'
+  - echo -en 'travis_fold:start:doc\\r'
+  - make doc
+  - cd $TRAVIS_BUILD_DIR
+  - chmod +x docs/generateDocumentationAndDeploy.sh
+  - ./docs/generateDocumentationAndDeploy.sh
+  - echo -en 'travis_fold:end:doc\\r'
