@@ -31,7 +31,7 @@ addons:
       - gcc-7
 
 before_install:
-  - sudo add-apt-repository ppa:beineri/opt-qt510-trusty -y
+  - sudo add-apt-repository ppa:beineri/opt-qt-5.10.1-trusty -y
   - sudo apt-get update -qq
       
 install:
