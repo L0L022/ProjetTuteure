@@ -54,12 +54,12 @@
 
 #include <QObject>
 
-class WebSocketTransport;
-
 QT_BEGIN_NAMESPACE
 class QWebSocketServer;
 QT_END_NAMESPACE
-
+namespace semantics {
+namespace core {
+class WebSocketTransport;
 class WebSocketClientWrapper : public QObject {
   Q_OBJECT
 
@@ -75,5 +75,6 @@ private slots:
 private:
   QWebSocketServer *m_server;
 };
-
+}
+}
 #endif // WEBSOCKETCLIENTWRAPPER_H

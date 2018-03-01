@@ -5,7 +5,7 @@
 
 #include <QScopedPointer>
 
-#include "DAOFactory.hpp"
+#include <persistence/SQLite/DAOFactory.hpp>
 
 namespace persistence {
 namespace SQLite {

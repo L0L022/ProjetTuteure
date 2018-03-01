@@ -1,8 +1,8 @@
 #ifndef PERSISTENCE_DAOFACTORY_HPP
 #define PERSISTENCE_DAOFACTORY_HPP
 
-#include "DAO.hpp"
-#include "Tables.hpp"
+#include <persistence/DAO.hpp>
+#include <persistence/Tables.hpp>
 
 namespace persistence {
 

@@ -6,6 +6,9 @@
 
 #include <QWebChannel>
 
+namespace semantics {
+namespace core {
+
 Server::Server(QObject *parent) : QObject(parent), _server(nullptr) {
   _server = new QWebSocketServer(
       QStringLiteral("QWebChannel Standalone Example Server"),
@@ -31,4 +34,7 @@ void Server::start() {
 
 void Server::stop() {
     _server->close();
+}
+
+}
 }

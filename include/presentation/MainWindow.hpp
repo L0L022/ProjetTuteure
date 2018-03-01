@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QThread>
 
+namespace presentation {
+
 class MainWindow : public QMainWindow {
   Q_OBJECT
 public:
@@ -13,5 +15,7 @@ public:
 private:
   QThread *_server_thread;
 };
+
+}
 
 #endif

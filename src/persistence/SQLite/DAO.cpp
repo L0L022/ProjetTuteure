@@ -2,10 +2,11 @@
 
 #include <QFile>
 
-using namespace persistence::SQLite;
+namespace persistence {
+namespace SQLite {
 
 template <>
-const TableInfo DAO<persistence::Form>::table{
+const TableInfo DAO<Form>::table{
     "T_FORM_FRM",
     {{"id", {"FRM_ID", Integer}},
      {"name", {"FRM_NAME", String}},
@@ -14,7 +15,7 @@ const TableInfo DAO<persistence::Form>::table{
      {"modification_date", {"FRM_MODIFICATION_DATE", DateTime}}}};
 
 template <>
-const TableInfo DAO<persistence::Question>::table{
+const TableInfo DAO<Question>::table{
     "T_QUESTION_QST",
     {{"id", {"QST_ID", Integer}},
      {"form", {"FRM_ID", Integer}},
@@ -24,7 +25,7 @@ const TableInfo DAO<persistence::Question>::table{
      {"modification_date", {"QST_MODIFICATION_DATE", DateTime}}}};
 
 template <>
-const TableInfo DAO<persistence::Choice>::table{
+const TableInfo DAO<Choice>::table{
     "T_CHOICE_CHC",
     {{"id", {"CHC_ID", Integer}},
      {"question", {"QST_ID", Integer}},
@@ -32,7 +33,7 @@ const TableInfo DAO<persistence::Choice>::table{
      {"modification_date", {"CHC_MODIFICATION_DATE", DateTime}}}};
 
 template <>
-const TableInfo DAO<persistence::Subject>::table{
+const TableInfo DAO<Subject>::table{
     "T_SUBJECT_SBJ",
     {{"id", {"SBJ_ID", Integer}},
      {"form", {"FRM_ID", Integer}},
@@ -40,7 +41,7 @@ const TableInfo DAO<persistence::Subject>::table{
      {"modification_date", {"SBJ_MODIFICATION_DATE", DateTime}}}};
 
 template <>
-const TableInfo DAO<persistence::OpenedAnswer>::table{
+const TableInfo DAO<OpenedAnswer>::table{
     "TJ_SBJ_QST",
     {{"subject", {"SBJ_ID", Integer}},
      {"question", {"QST_ID", Integer}},
@@ -48,13 +49,13 @@ const TableInfo DAO<persistence::OpenedAnswer>::table{
      {"modification_date", {"SBJ_QST_MODIFICATION_DATE", DateTime}}}};
 
 template <>
-const TableInfo DAO<persistence::ClosedAnswer>::table{
+const TableInfo DAO<ClosedAnswer>::table{
     "TJ_SBJ_CHC",
     {{"subject", {"SBJ_ID", Integer}},
      {"choice", {"CHC_ID", Integer}},
      {"modification_date", {"SBJ_CHC_MODIFICATION_DATE", DateTime}}}};
 
-void persistence::SQLite::runSQLFromFile(const QString &fileName) {
+void runSQLFromFile(const QString &fileName) {
   QFile file(fileName);
 
   if (!file.open(QFile::ReadOnly | QFile::Text)) {
@@ -71,4 +72,7 @@ void persistence::SQLite::runSQLFromFile(const QString &fileName) {
         execQuery(query);
       }
   }
+}
+
+}
 }

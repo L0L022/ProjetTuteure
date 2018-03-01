@@ -5,7 +5,8 @@
 #include <QJsonObject>
 #include <iostream>
 
-using namespace semantics::core;
+namespace semantics {
+namespace core {
 
 DataTests::DataTests(QObject *parent) : QObject(parent) {}
 
@@ -32,10 +33,8 @@ std::unique_ptr<Form> DataTests::create_form() {
   Form::Questions questions;
 
   for (size_t i = 0; i < 5; ++i) {
-    auto q = std::make_unique<OpenedQuestion>(questionsSharedData->takeId());
-    q->setTitle(QString("Opened question n %1").arg(q->id()));
-    q->setNbWords(10);
-    questions.insert(std::move(q));
+    auto id = questionsSharedData->takeId();
+    questions.insert(std::make_unique<OpenedQuestion>(id, QString("Opened question n %1").arg(id), 10));
   }
 
   for (size_t i = 0; i < 3; ++i) {
@@ -45,37 +44,22 @@ std::unique_ptr<Form> DataTests::create_form() {
       c->setLabel(QString("Choice %1").arg(c->id()));
       choices.insert(std::move(c));
     }
-    {
-      auto q = std::make_unique<ClosedQuestion>(ClosedQuestion::Unique,
-                                                questionsSharedData->takeId(),
-                                                choicesSharedData);
-      q->setTitle(QString("Unique closed question n %1").arg(q->id()));
-      q->setChoices(choices);
-      questions.insert(std::move(q));
-    }
-    {
-      auto q = std::make_unique<ClosedQuestion>(ClosedQuestion::Multiple,
-                                                questionsSharedData->takeId(),
-                                                choicesSharedData);
-      q->setTitle(QString("Multiple closed question n %1").arg(q->id()));
-      q->setChoices(choices);
-      questions.insert(std::move(q));
-    }
+    auto id = questionsSharedData->takeId();
+      questions.insert(std::make_unique<ClosedQuestion>(id,
+                                                        ClosedQuestion::Unique,
+                                                        choices,
+                                                        QString("Unique closed question n %1").arg(id)));
+
+        questions.insert(std::make_unique<ClosedQuestion>(id,
+                                                          ClosedQuestion::Multiple,
+                                                          choices,
+                                                          QString("Multiple closed question n %1").arg(id)));
   }
 
-  // IdDataMap<Form> forms;
-  auto form =
-      std::make_unique<Form>(1, questionsSharedData, subjectsSharedData);
-  // std::unique_ptr<Form> form(new Form(forms.takeId(), questionsSharedData,
-  // subjectsSharedData));
-  form->setName("Name");
-  form->setDescription("Description");
-  form->setQuestions(questions);
-  // std::cout <<
-  // QJsonDocument::fromVariant(form->toMap()).toJson().toStdString();
-  // forms.insert(std::move(form));
-
-  return form;
+  return std::make_unique<Form>(1, questions, subjectsSharedData, "Name", "Description");
 }
 
-QTEST_MAIN(DataTests)
+}
+}
+
+QTEST_MAIN(semantics::core::DataTests)

@@ -5,6 +5,8 @@
 
 #include <QObject>
 #include <QVariant>
+namespace semantics {
+namespace core {
 
 class Services : public QObject {
   Q_OBJECT
@@ -30,5 +32,7 @@ protected:
 private:
   QHash<QString, Function> _functions;
 };
+}
+}
 
 #endif

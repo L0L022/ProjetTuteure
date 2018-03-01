@@ -2,6 +2,8 @@
 #define SEMANTICS_CORE_SERVER_HPP
 
 #include <QWebSocketServer>
+namespace semantics {
+namespace core {
 
 class Server : public QObject {
   Q_OBJECT
@@ -17,5 +19,7 @@ signals:
 private:
   QWebSocketServer *_server;
 };
+}
+}
 
 #endif

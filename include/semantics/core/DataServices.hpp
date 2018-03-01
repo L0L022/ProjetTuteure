@@ -1,7 +1,7 @@
 #ifndef SEMANTICS_CORE_DATASERVICES_HPP
 #define SEMANTICS_CORE_DATASERVICES_HPP
 
-#include "Data.hpp"
+#include <semantics/core/Data.hpp>
 #include <persistence/Tables.hpp>
 #include <persistence/DAOFactory.hpp>
 
@@ -16,8 +16,8 @@ public:
     DataServices();
     ~DataServices();
 
-    void loadData();
-    void saveData();
+    void loadData(const QString &uri);
+    void saveData(const QString &uri);
 
     QVariantMap listForms();
     QVariantMap listSubjects(const Id id);
@@ -40,6 +40,7 @@ public:
 
 private:
     void resetSharedData();
+    void resetDAO(const QString &uri);
 
 private:
     Forms::SharedDataPtr _formsSharedData;

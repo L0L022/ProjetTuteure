@@ -1,15 +1,19 @@
 #include <persistence/SQLite/Exceptions.hpp>
 
-using namespace persistence;
+namespace persistence {
+namespace SQLite {
 
-void SQLite::prepareQuery(QSqlQuery &query, const QString &sql) {
+void prepareQuery(QSqlQuery &query, const QString &sql) {
   if (!query.prepare(sql)) {
     throw QueryPrepareException(sql);
   }
 }
 
-void SQLite::execQuery(QSqlQuery &query) {
+void execQuery(QSqlQuery &query) {
   if (!query.exec()) {
     throw SQLErrorException(query.lastQuery(), query.lastError());
   }
+}
+
+}
 }

@@ -1,9 +1,9 @@
 #ifndef PERSISTENCE_SQLITE_DAO_HPP
 #define PERSISTENCE_SQLITE_DAO_HPP
 
-#include "../DAO.hpp"
-#include "../Tables.hpp"
-#include "Exceptions.hpp"
+#include <persistence/DAO.hpp>
+#include <persistence/Tables.hpp>
+#include <persistence/SQLite/Exceptions.hpp>
 
 #include <QDateTime>
 #include <QDebug>

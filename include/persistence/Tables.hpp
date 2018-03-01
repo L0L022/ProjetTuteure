@@ -10,9 +10,6 @@ namespace persistence {
 
 class Form {
 public:
-  static const QString table;
-  static const QStringList columns;
-
   Form() = default;
   Form(const QVariantMap &v);
 
@@ -27,9 +24,6 @@ public:
 
 class Question {
 public:
-  static const QString table;
-  static const QStringList columns;
-
   Question() = default;
   Question(const QVariantMap &v);
 
@@ -45,9 +39,6 @@ public:
 
 class Choice {
 public:
-  static const QString table;
-  static const QStringList columns;
-
   Choice() = default;
   Choice(const QVariantMap &v);
 
@@ -61,9 +52,6 @@ public:
 
 class Subject {
 public:
-  static const QString table;
-  static const QStringList columns;
-
   Subject() = default;
   Subject(const QVariantMap &v);
 
@@ -77,9 +65,6 @@ public:
 
 class OpenedAnswer {
 public:
-  static const QString table;
-  static const QStringList columns;
-
   OpenedAnswer() = default;
   OpenedAnswer(const QVariantMap &v);
 
@@ -93,9 +78,6 @@ public:
 
 class ClosedAnswer {
 public:
-  static const QString table;
-  static const QStringList columns;
-
   ClosedAnswer() = default;
   ClosedAnswer(const QVariantMap &v);
 

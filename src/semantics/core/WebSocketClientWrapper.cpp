@@ -53,6 +53,9 @@
 
 #include <QWebSocketServer>
 
+namespace semantics {
+namespace core {
+
 /*!
     \brief Wraps connected QWebSockets clients in WebSocketTransport objects.
 
@@ -81,4 +84,7 @@ WebSocketClientWrapper::WebSocketClientWrapper(QWebSocketServer *server, QObject
 void WebSocketClientWrapper::handleNewConnection()
 {
     emit clientConnected(new WebSocketTransport(m_server->nextPendingConnection()));
+}
+
+}
 }

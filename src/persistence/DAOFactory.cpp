@@ -2,7 +2,7 @@
 
 #include <persistence/SQLite/DAOFactory.hpp>
 
-using namespace persistence;
+namespace persistence {
 
 DAOFactory *DAOFactory::make(const Drivers d) {
   switch (d) {
@@ -11,4 +11,6 @@ DAOFactory *DAOFactory::make(const Drivers d) {
   default:
     return nullptr;
   }
+}
+
 }

@@ -1,7 +1,7 @@
 #ifndef PERSISTENCE_SQLITE_EXCEPTIONS_HPP
 #define PERSISTENCE_SQLITE_EXCEPTIONS_HPP
 
-#include "../Exception.hpp"
+#include <persistence/Exception.hpp>
 
 #include <QtSql/QSqlError>
 #include <QtSql/QSqlQuery>

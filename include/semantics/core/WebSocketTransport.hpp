@@ -57,7 +57,8 @@
 QT_BEGIN_NAMESPACE
 class QWebSocket;
 QT_END_NAMESPACE
-
+namespace semantics {
+namespace core {
 class WebSocketTransport : public QWebChannelAbstractTransport {
   Q_OBJECT
 public:
@@ -72,5 +73,6 @@ private slots:
 private:
   QWebSocket *m_socket;
 };
-
+}
+}
 #endif // WEBSOCKETTRANSPORT_H

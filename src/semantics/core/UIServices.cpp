@@ -2,14 +2,15 @@
 #include <QDebug>
 #include <QThread>
 
-using namespace semantics::core;
+namespace semantics {
+namespace core {
 
 UIServices::UIServices(QObject *parent) : Services(parent) {
     registerData();
 }
 
 void UIServices::registerData() {
-    insertFunction(QStringLiteral("listForms"), [this](const QVariantMap &args) -> QVariantMap {
+    insertFunction(QStringLiteral("listForms"), [this](const QVariantMap &) -> QVariantMap {
         QVariantMap r;
         try {
             r["forms"] = _dataServices.listForms();
@@ -119,7 +120,7 @@ void UIServices::registerData() {
         return r;
 
     });
-    insertFunction(QStringLiteral("takeFormId"), [this](const QVariantMap &args) -> QVariantMap {
+    insertFunction(QStringLiteral("takeFormId"), [this](const QVariantMap &) -> QVariantMap {
         QVariantMap r;
         try {
             r["id"] = _dataServices.takeFormId();
@@ -128,7 +129,7 @@ void UIServices::registerData() {
         }
         return r;
     });
-    insertFunction(QStringLiteral("takeSubjectId"), [this](const QVariantMap &args) -> QVariantMap {
+    insertFunction(QStringLiteral("takeSubjectId"), [this](const QVariantMap &) -> QVariantMap {
         QVariantMap r;
         try {
             r["id"] = _dataServices.takeSubjectId();
@@ -137,7 +138,7 @@ void UIServices::registerData() {
         }
         return r;
     });
-    insertFunction(QStringLiteral("takeQuestionId"), [this](const QVariantMap &args) -> QVariantMap {
+    insertFunction(QStringLiteral("takeQuestionId"), [this](const QVariantMap &) -> QVariantMap {
         QVariantMap r;
         try {
             r["id"] = _dataServices.takeQuestionId();
@@ -146,7 +147,7 @@ void UIServices::registerData() {
         }
         return r;
     });
-    insertFunction(QStringLiteral("takeChoiceId"), [this](const QVariantMap &args) -> QVariantMap {
+    insertFunction(QStringLiteral("takeChoiceId"), [this](const QVariantMap &) -> QVariantMap {
         QVariantMap r;
         try {
             r["id"] = _dataServices.takeChoiceId();
@@ -158,7 +159,11 @@ void UIServices::registerData() {
     insertFunction(QStringLiteral("loadData"), [this](const QVariantMap &args) -> QVariantMap {
         QVariantMap r;
         try {
-            _dataServices.loadData();
+            if (args.contains("uri") && args.value("uri").canConvert<QString>()) {
+                _dataServices.loadData(args.value("uri").value<QString>());
+            } else {
+                r["error"] = "uri is missing or is not in the right type";
+            }
         } catch(std::exception &e) {
             r["error"] = e.what();
         }
@@ -167,10 +172,17 @@ void UIServices::registerData() {
     insertFunction(QStringLiteral("saveData"), [this](const QVariantMap &args) -> QVariantMap {
         QVariantMap r;
         try {
-            _dataServices.saveData();
+            if (args.contains("uri") && args.value("uri").canConvert<QString>()) {
+                _dataServices.saveData(args.value("uri").value<QString>());
+            } else {
+                r["error"] = "uri is missing or is not in the right type";
+            }
         } catch(std::exception &e) {
             r["error"] = e.what();
         }
         return r;
     });
+}
+
+}
 }

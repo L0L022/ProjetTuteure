@@ -2,6 +2,9 @@
 
 #include <QDebug>
 
+namespace semantics {
+namespace core {
+
 Services::Services(QObject *parent) : QObject(parent) {}
 
 QVariantMap Services::run(const QString &id, const QVariantMap &args) {
@@ -25,4 +28,7 @@ void Services::insertFunction(const QString &id, const Function& f) {
 
 void Services::removeFunction(const QString &id) {
     _functions.remove(id);
+}
+
+}
 }

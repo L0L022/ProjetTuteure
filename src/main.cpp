@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
 
   int r = EXIT_FAILURE;
   try {
-      MainWindow w;
+      presentation::MainWindow w;
       w.show();
 
       r = app.exec();

@@ -1,6 +1,7 @@
 #include <semantics/core/Data.hpp>
 
-using namespace semantics::core;
+namespace semantics {
+namespace core {
 
 Data::Data(const QDateTime &modification_date)
     : _modification_date(modification_date) {}
@@ -55,8 +56,8 @@ void IdData::do_assignFromMap(const QVariantMap &m) {
 
 Data *IdData::do_clone() const { return new IdData(*this); }
 
-Question::Question(const IdData::Id id, const QDateTime &modification_date)
-    : IdData(id, modification_date) {}
+Question::Question(const IdData::Id id, const QString &title, const QDateTime &modification_date)
+    : IdData(id, modification_date), _title(title) {}
 
 Question::Question(const QVariantMap &m) : IdData(m) { do_assignFromMap(m); }
 
@@ -74,7 +75,7 @@ Question *Question::fromMap(const QVariantMap &m) {
   else if (type == "multiple" || type == "unique")
     return ClosedQuestion::fromMap(m);
   else
-    return nullptr; // exception
+      return nullptr; // exception
 }
 
 QVariantMap Question::do_toMap() const {
@@ -90,9 +91,9 @@ void Question::do_assignFromMap(const QVariantMap &m) {
 
 Data *Question::do_clone() const { return new Question(*this); }
 
-OpenedQuestion::OpenedQuestion(const IdData::Id id,
+OpenedQuestion::OpenedQuestion(const IdData::Id id, const QString &title, const Size nbWords,
                                const QDateTime &modification_date)
-    : Question(id, modification_date), _nbWords(0) {}
+    : Question(id, title, modification_date), _nbWords(nbWords) {}
 
 void OpenedQuestion::setNbWords(const Size nbWords) {
   if (nbWords != _nbWords) {
@@ -102,7 +103,7 @@ void OpenedQuestion::setNbWords(const Size nbWords) {
 }
 
 OpenedQuestion *OpenedQuestion::fromMap(const QVariantMap &m) {
-  return new OpenedQuestion(m);
+    return new OpenedQuestion(m);
 }
 
 OpenedQuestion::OpenedQuestion(const QVariantMap &m) : Question(m) {
@@ -123,8 +124,8 @@ void OpenedQuestion::do_assignFromMap(const QVariantMap &m) {
 
 Data *OpenedQuestion::do_clone() const { return new OpenedQuestion(*this); }
 
-Choice::Choice(const IdData::Id id, const QDateTime &modification_date)
-    : IdData(id, modification_date) {}
+Choice::Choice(const IdData::Id id, const QString &label, const QDateTime &modification_date)
+    : IdData(id, modification_date), _label(label) {}
 
 Choice::Choice(const QVariantMap &m) : IdData(m) { do_assignFromMap(m); }
 
@@ -150,11 +151,10 @@ void Choice::do_assignFromMap(const QVariantMap &m) {
 
 Data *Choice::do_clone() const { return new Choice(*this); }
 
-ClosedQuestion::ClosedQuestion(const ClosedQuestion::Type type,
-                               const IdData::Id id,
-                               Choices::SharedDataPtr sharedData,
+ClosedQuestion::ClosedQuestion(const IdData::Id id, const ClosedQuestion::Type type,
+                               const Choices &choices, const QString &title,
                                const QDateTime &modification_date)
-    : Question(id, modification_date), _type(type), _choices(sharedData) {}
+    : Question(id, title, modification_date), _type(type), _choices(choices) {}
 
 ClosedQuestion::ClosedQuestion(const QVariantMap &m) : Question(m) {
   do_assignFromMap(m);
@@ -175,7 +175,7 @@ void ClosedQuestion::setChoices(const Choices &choices) {
 }
 
 ClosedQuestion *ClosedQuestion::fromMap(const QVariantMap &m) {
-  return new ClosedQuestion(m);
+    return new ClosedQuestion(m);
 }
 
 QVariantMap ClosedQuestion::do_toMap() const {
@@ -240,9 +240,9 @@ void Answer::do_assignFromMap(const QVariantMap &m) {
   // check question
 }
 
-OpenedAnswer::OpenedAnswer(const Answer::Id id,
+OpenedAnswer::OpenedAnswer(const Answer::Id id, const QStringList words,
                            const QDateTime &modification_date)
-    : Answer(id, modification_date) {}
+    : Answer(id, modification_date), _words(words) {}
 
 OpenedAnswer::OpenedAnswer(const QVariantMap &m) : Answer(m) {
   do_assignFromMap(m);
@@ -281,9 +281,9 @@ void OpenedAnswer::do_assignFromMap(const QVariantMap &m) {
 
 Data *OpenedAnswer::do_clone() const { return new OpenedAnswer(*this); }
 
-ClosedAnswer::ClosedAnswer(const Answer::Id id,
+ClosedAnswer::ClosedAnswer(const Answer::Id id, const Choices &choices,
                            const QDateTime &modification_date)
-    : Answer(id, modification_date) {}
+    : Answer(id, modification_date), _choices(choices) {}
 
 ClosedAnswer::ClosedAnswer(const QVariantMap &m) : Answer(m) {
   do_assignFromMap(m);
@@ -343,8 +343,8 @@ void ClosedAnswer::do_assignFromMap(const QVariantMap &m) {
 
 Data *ClosedAnswer::do_clone() const { return new ClosedAnswer(*this); }
 
-Subject::Subject(const IdData::Id id, const QDateTime &modification_date)
-    : IdData(id, modification_date), _isValid(false) {}
+Subject::Subject(const IdData::Id id, const bool isValid, const Answers &answers, const QDateTime &modification_date)
+    : IdData(id, modification_date), _isValid(isValid), _answers(answers) {}
 
 Subject::Subject(const QVariantMap &m) : IdData(m) { do_assignFromMap(m); }
 
@@ -386,12 +386,14 @@ void Subject::do_assignFromMap(const QVariantMap &m) {
 
 Data *Subject::do_clone() const { return new Subject(*this); }
 
-Form::Form(const IdData::Id id, Questions::SharedDataPtr questionsSharedData,
-           Subjects::SharedDataPtr subjectsSharedData,
+Form::Form(const IdData::Id id, const Questions &questions, const Subjects &subjects, const QString &name,
+           const QString &description, const QDateTime &creationDate,
            const QDateTime &modification_date)
     : IdData(id, modification_date),
-      _creation_date(QDateTime::currentDateTime()),
-      _questions(questionsSharedData), _subjects(subjectsSharedData) {}
+      _name(name),
+      _description(description),
+      _creation_date(creationDate),
+      _questions(questions), _subjects(subjects) {}
 
 Form::Form(const QVariantMap &m) : IdData(m) { do_assignFromMap(m); }
 
@@ -461,3 +463,6 @@ void Form::do_assignFromMap(const QVariantMap &m) {
 }
 
 Data *Form::do_clone() const { return new Form(*this); }
+
+}
+}

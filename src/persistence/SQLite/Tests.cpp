@@ -6,9 +6,10 @@
 #include <QDateTime>
 #include <QDebug>
 
-using namespace persistence::SQLite;
-
 inline void init_ressource() { Q_INIT_RESOURCE(sqlite); }
+
+namespace persistence {
+namespace SQLite {
 
 Tests::Tests(QObject *parent) : QObject(parent) { init_ressource(); }
 
@@ -117,4 +118,7 @@ void Tests::remove() {
   }
 }
 
-QTEST_MAIN(Tests)
+}
+}
+
+QTEST_MAIN(persistence::SQLite::Tests)

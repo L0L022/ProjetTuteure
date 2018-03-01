@@ -210,6 +210,7 @@ void fromVariantMap(const QVariantMap &src, IdDataMap<T> &dest) {
 class Question : public IdData {
 protected:
   Question(const Id id,
+           const QString &title = QString(),
            const QDateTime &modification_date = QDateTime::currentDateTime());
   Question(const QVariantMap &m);
 
@@ -238,7 +239,10 @@ class OpenedQuestion : public Question {
 public:
   using Size = uint;
 
-  OpenedQuestion(const Id id, const QDateTime &modification_date =
+  OpenedQuestion(const Id id,
+                 const QString &title = QString(),
+                 const Size nbWords = 0,
+                 const QDateTime &modification_date =
                                   QDateTime::currentDateTime());
 
   inline Size nbWords() const { return _nbWords; }
@@ -265,6 +269,7 @@ inline OpenedQuestion *new_clone(const OpenedQuestion &q) {
 class Choice : public IdData {
 public:
   Choice(const Id id,
+         const QString &label = QString(),
          const QDateTime &modification_date = QDateTime::currentDateTime());
 
   inline const QString &label() const { return _label; }
@@ -294,10 +299,10 @@ public:
 
   enum Type { Unique, Multiple };
 
-  ClosedQuestion(
-      const Type type, const Id id,
-      Choices::SharedDataPtr sharedData =
-          std::make_shared<Choices::SharedData>(),
+  ClosedQuestion(const Id id,
+      const Type type,
+      const Choices &choices = Choices(),
+      const QString &title = QString(),
       const QDateTime &modification_date = QDateTime::currentDateTime());
 
   inline Type type() const { return _type; }
@@ -379,8 +384,9 @@ inline Answer *new_clone(const Answer &a) {
 
 class OpenedAnswer : public Answer {
 public:
-  OpenedAnswer(const Id id, const QDateTime &modification_date =
-                                QDateTime::currentDateTime());
+  OpenedAnswer(const Id id,
+               const QStringList words = QStringList(),
+               const QDateTime &modification_date = QDateTime::currentDateTime());
 
   inline const QStringList &words() const { return _words; }
   void setWords(const QStringList &words);
@@ -410,7 +416,7 @@ class ClosedAnswer : public Answer {
 public:
   using Choices = QList<Id>;
 
-  ClosedAnswer(const Id id, const QDateTime &modification_date =
+  ClosedAnswer(const Id id, const Choices &choices = Choices(), const QDateTime &modification_date =
                                 QDateTime::currentDateTime());
 
   inline const Choices &choices() const { return _choices; }
@@ -442,6 +448,8 @@ public:
   using Answers = boost::ptr_map<Id, Answer>;
 
   Subject(const Id id,
+          const bool isValid = false,
+          const Answers &answers = Answers(),
           const QDateTime &modification_date = QDateTime::currentDateTime());
 
   bool isValid() const { return _isValid; }
@@ -478,10 +486,11 @@ public:
   using Subjects = IdDataMap<Subject>;
 
   Form(const Id id,
-       Questions::SharedDataPtr questionsSharedData =
-           std::make_shared<Questions::SharedData>(),
-       Subjects::SharedDataPtr subjectsSharedData =
-           std::make_shared<Subjects::SharedData>(),
+       const Questions &questions = Questions(),
+       const Subjects &subjects = Subjects(),
+       const QString &name = QString(),
+       const QString &description = QString(),
+       const QDateTime &creationDate = QDateTime::currentDateTime(),
        const QDateTime &modification_date = QDateTime::currentDateTime());
 
   inline const QString &name() const { return _name; }

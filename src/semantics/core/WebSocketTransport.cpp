@@ -55,6 +55,9 @@
 #include <QJsonObject>
 #include <QWebSocket>
 
+namespace semantics {
+namespace core {
+
 /*!
     \brief QWebChannelAbstractSocket implementation that uses a QWebSocket internally.
 
@@ -111,4 +114,7 @@ void WebSocketTransport::textMessageReceived(const QString &messageData)
         return;
     }
     emit messageReceived(message.object(), this);
+}
+
+}
 }

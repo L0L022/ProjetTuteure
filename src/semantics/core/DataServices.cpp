@@ -3,47 +3,35 @@
 #include <persistence/SQLite/DAOFactory.hpp>
 #include <functional>
 
-using namespace semantics::core;
+namespace semantics {
+namespace core {
 
 DataServices::DataServices()
 {
-    _factory = std::make_unique<persistence::SQLite::DAOFactory>(":memory:");
-    _dao_form.reset(_factory->form());
-    _dao_question.reset(_factory->question());
-    _dao_choice.reset(_factory->choice());
-    _dao_subject.reset(_factory->subject());
-    _dao_openedAnswer.reset(_factory->openedAnswer());
-    _dao_closedAnswer.reset(_factory->closedAnswer());
-
-    loadData();
+    resetSharedData();
+    _forms = std::make_unique<Forms>(_formsSharedData);
 }
 
 DataServices::~DataServices()
 {
-    saveData();
 }
 
-void DataServices::loadData()
+void DataServices::loadData(const QString &uri)
 {
+    resetDAO(uri);
     resetSharedData();
-    _forms = std::make_unique<Forms>(_formsSharedData);
+    std::unique_ptr<Forms> forms = std::make_unique<Forms>(_formsSharedData);
 
     QVector<persistence::Form> p_forms = _dao_form->search();
-    Forms &s_forms = *_forms;
+    Forms &s_forms = *forms;
     for (const persistence::Form &p_f : p_forms) {
-        std::unique_ptr<Form> s_f = std::make_unique<Form>(p_f.id, _questionsSharedData, _subjectsSharedData, p_f.modification_date);
-        s_f->setName(p_f.name);
-        s_f->setDescription(p_f.description);
-        s_f->setCreationDate(p_f.creation_date);
 
         QVector<persistence::Question> p_questions = _dao_question->search({{"form", p_f.id}});
         Form::Questions s_questions(_questionsSharedData);
         for (const persistence::Question &p_q : p_questions) {
             std::unique_ptr<Question> s_q;
             if (p_q.type == "opened") {
-                std::unique_ptr<OpenedQuestion> q = std::make_unique<OpenedQuestion>(p_q.id, p_q.modification_date);
-                q->setNbWords(p_q.nb_words);
-                s_q = std::move(q);
+                s_q = std::make_unique<OpenedQuestion>(p_q.id, p_q.title, p_q.nb_words, p_q.modification_date);
             } else if (p_q.type == "unique" || p_q.type == "multiple") {
                 ClosedQuestion::Type type;
                 if (p_q.type == "unique") {
@@ -51,37 +39,29 @@ void DataServices::loadData()
                 } else if (p_q.type == "multiple") {
                     type = ClosedQuestion::Multiple;
                 }
-                std::unique_ptr<ClosedQuestion> q = std::make_unique<ClosedQuestion>(type, p_q.id, _choicesSharedData, p_q.modification_date);
 
                 QVector<persistence::Choice> p_choices = _dao_choice->search({{"question", p_q.id}});
                 ClosedQuestion::Choices s_choices(_choicesSharedData);
                 for (const persistence::Choice &p_c : p_choices) {
-                    std::unique_ptr<Choice> s_c = std::make_unique<Choice>(p_c.id, p_c.modification_date);
-                    s_c->setLabel(p_c.label);
-                    s_choices.insert(std::move(s_c));
+                    s_choices.insert(std::make_unique<Choice>(p_c.id, p_c.label, p_c.modification_date));
                 }
-                q->setChoices(s_choices);
 
-                s_q = std::move(q);
+                s_q = std::make_unique<ClosedQuestion>(p_q.id, type, s_choices, p_q.title, p_q.modification_date);
+            } else {
+                // exception
             }
-            s_q->setTitle(p_q.title);
             s_questions.insert(std::move(s_q));
         }
-        s_f->setQuestions(s_questions);
 
         QVector<persistence::Subject> p_subjects = _dao_subject->search({{"form", p_f.id}});
         Form::Subjects s_subjects(_subjectsSharedData);
         for (const persistence::Subject &p_s : p_subjects) {
-            std::unique_ptr<Subject> s_subject = std::make_unique<Subject>(p_s.id, p_s.modification_date);
-
             Subject::Answers s_answers;
 
             QVector<persistence::OpenedAnswer> p_openedAnswers = _dao_openedAnswer->search({{"subject", p_s.id}});
             for (const persistence::OpenedAnswer &p_oa : p_openedAnswers) {
-                std::unique_ptr<OpenedAnswer> s_oa = std::make_unique<OpenedAnswer>(p_oa.question, p_oa.modification_date);
-                s_oa->setWords(p_oa.words.split('|')); // use JSON array
-                auto q = s_oa->question();
-                s_answers.insert(q, s_oa.release());
+                auto q = p_oa.question;
+                s_answers.insert(q, new OpenedAnswer(p_oa.question, p_oa.words.split('|'), p_oa.modification_date)); // use JSON array
             }
 
             QVector<persistence::ClosedAnswer> p_closedAnswers = _dao_closedAnswer->search({{"subject", p_s.id}});
@@ -96,26 +76,25 @@ void DataServices::loadData()
                     ClosedAnswer::Choices choices;
                     for (const auto it_c : q->choices()) {
                         const Choice & c = *it_c->second;
-                        if (m_choices.count(c.id())) {
+                        if (m_choices.count(c.id()) > 0) {
                             choices.append(c.id());
                         }
                     }
-                    std::unique_ptr<ClosedAnswer> s_ca = std::make_unique<ClosedAnswer>(q->id());
-                    s_ca->setChoices(choices);
-                    Question::Id id = q->id();
-                    s_answers.insert(id, s_ca.release());
+                    auto id = q->id();
+                    s_answers.insert(id, new ClosedAnswer(q->id(), choices)); // modification date ??
                 }
             }
-
-            s_subject->setAnswers(s_answers);
+            s_subjects.insert(std::make_unique<Subject>(p_s.id, p_s.is_valid, s_answers, p_s.modification_date));
         }
-
-        s_forms.insert(std::move(s_f));
+        s_forms.insert(std::make_unique<Form>(p_f.id, s_questions, s_subjects, p_f.name, p_f.description, p_f.creation_date, p_f.modification_date));
     }
+
+    _forms = std::move(forms);
 }
 
-void DataServices::saveData()
+void DataServices::saveData(const QString &uri)
 {
+    resetDAO(uri);
     _dao_form->remove();
 
     for (const auto it_f : *_forms) {
@@ -339,4 +318,18 @@ void DataServices::resetSharedData()
     _questionsSharedData = std::make_shared<Form::Questions::SharedData>();
     _choicesSharedData = std::make_shared<ClosedQuestion::Choices::SharedData>();
     _subjectsSharedData = std::make_shared<Form::Subjects::SharedData>();
+}
+
+void DataServices::resetDAO(const QString &uri)
+{
+    _factory = std::make_unique<persistence::SQLite::DAOFactory>(uri);
+    _dao_form.reset(_factory->form());
+    _dao_question.reset(_factory->question());
+    _dao_choice.reset(_factory->choice());
+    _dao_subject.reset(_factory->subject());
+    _dao_openedAnswer.reset(_factory->openedAnswer());
+    _dao_closedAnswer.reset(_factory->closedAnswer());
+}
+
+}
 }

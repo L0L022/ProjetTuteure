@@ -1,8 +1,11 @@
 #ifndef SEMANTICS_CORE_UISERVICES_HPP
 #define SEMANTICS_CORE_UISERVICES_HPP
 
-#include "Services.hpp"
-#include "DataServices.hpp"
+#include <semantics/core/Services.hpp>
+#include <semantics/core/DataServices.hpp>
+
+namespace semantics {
+namespace core {
 
 class UIServices : public Services {
   Q_OBJECT
@@ -12,7 +15,8 @@ public:
 private:
   void registerData();
 
-  semantics::core::DataServices _dataServices;
+  DataServices _dataServices;
 };
-
+}
+}
 #endif
