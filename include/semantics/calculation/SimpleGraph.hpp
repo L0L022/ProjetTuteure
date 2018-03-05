@@ -5,35 +5,43 @@
 #include <pair>
 #include <vector>
 #include <string>
-
+#include <tuple>
 
 
 /**
  *  stringVec
- *  représente simplement une liste de mot correspond à une réponse
+ *  just represents a word list corresponds to an answer
  */
 
 typedef std::vector<std::string> stringVec;
 
 /**
  *  reply
- *  représente une réponse composé de :
- *    le mot
- *    son rang
+ *  represents a response composed of:
+ *    word
+ *    his rank
  */
 
 typedef std::pair<std::string,int> reply;
 
 /**
  *  unordered_map
- *  les données du calcul qui sont composés de :
- *    le std::string représentant le mot en question
- *    le std::pair représentant le nombre d'occurence du mot, et la somme de ces rangs, donc std::pair<occurence,rangs>
+ *  the calculation data which are composed of:
+ *    the std::string representing the word
+ *    the std::pair representing the number of occurrences of the word, and the sum of these ranks, so std::pair <occurence, ranks>
  */
 
 typedef std::unordered_map<std::string,std::pair<int,int>> unordered_map;
 
-typedef std::vector<std::pair<std::string,double>> result;
+/**
+ *  result
+ *  The final result composed of:
+ *    The std :: string representing the word in question
+ *    The first double representing the middle of the rank
+ *    The second double representing the frequency of the word
+ */
+
+typedef std::vector<std::tuple<std::string,double,double>> result;
 
 namespace semantics {
 namespace core {
