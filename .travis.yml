@@ -60,8 +60,10 @@ install:
       curl -sL -o boost.tar.bz2 "https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.tar.bz2"
       tar xf boost.tar.bz2
       cd boost_1_66_0
-      ./bootstrap.sh
-      ./b2 -j2 -d0 --prefix="$DEPS_DIR/boost-install" install
+      #./bootstrap.sh
+      #./b2 -j2 -d0 --prefix="$DEPS_DIR/boost-install" install
+      mkdir -p "$DEPS_DIR/boost-install/include"
+      cp -r boost "$DEPS_DIR/boost-install/include"
       cd ..
       rm -rf boost_1_66_0
     fi
