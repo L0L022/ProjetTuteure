@@ -11,7 +11,7 @@ branches:
 # Environment variables
 env:
   global:
-    - GH_REPO_NAME: SuperProjetCPP
+    - GH_REPO_NAME: ProjetTuteure
     - DOXYFILE: $TRAVIS_BUILD_DIR/build/docs/DOXYFILE
     - GH_REPO_REF: github.com/L0L022/ProjetTuteure.git
     - DOC_HTML_DIR: $TRAVIS_BUILD_DIR/build/html
