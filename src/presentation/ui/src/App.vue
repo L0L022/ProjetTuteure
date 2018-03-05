@@ -2,7 +2,9 @@
 <el-container id="app">
   <el-main>
     <el-button @click="$router.back()">Retour</el-button>
-    <el-button @click="saveData()">Sauvegarger sur BDD</el-button>
+    <el-input placeholder="fichier" v-model="uri"></el-input>
+    <el-button style="margin-left: 10px;" size="small" type="success" @click="loadData">charger</el-button>
+    <el-button style="margin-left: 10px;" size="small" type="success" @click="saveData">sauvegarder</el-button>
     <router-view v-if="services !== null" :services="services"/>
   </el-main>
 </el-container>
@@ -16,7 +18,8 @@ export default {
   data () {
     return {
       services: null,
-      loading: null
+      loading: null,
+      uri: ''
     }
   },
   created: function () {
@@ -51,9 +54,18 @@ export default {
         }
       }
     },
+    loadData () {
+      var me = this
+      this.services.call('loadData', {uri: this.uri}, function () {
+        me.$message({
+          message: 'Chargement terminée.',
+          type: 'success'
+        })
+      })
+    },
     saveData () {
       var me = this
-      this.services.call('saveData', {}, function () {
+      this.services.call('saveData', {uri: this.uri}, function () {
         me.$message({
           message: 'Sauvegarde terminée.',
           type: 'success'

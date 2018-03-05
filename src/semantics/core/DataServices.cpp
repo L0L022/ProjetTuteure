@@ -322,6 +322,7 @@ void DataServices::resetSharedData()
 
 void DataServices::resetDAO(const QString &uri)
 {
+    _factory.reset();
     _factory = std::make_unique<persistence::SQLite::DAOFactory>(uri);
     _dao_form.reset(_factory->form());
     _dao_question.reset(_factory->question());
