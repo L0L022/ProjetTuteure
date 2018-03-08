@@ -10,7 +10,7 @@ namespace persistence {
 
 class Form {
 public:
-  Form() = default;
+  Form();
   Form(const QVariantMap &v);
 
   QVariantMap toMap() const;
@@ -24,7 +24,7 @@ public:
 
 class Question {
 public:
-  Question() = default;
+  Question();
   Question(const QVariantMap &v);
 
   QVariantMap toMap() const;
@@ -39,7 +39,7 @@ public:
 
 class Choice {
 public:
-  Choice() = default;
+  Choice();
   Choice(const QVariantMap &v);
 
   QVariantMap toMap() const;
@@ -52,7 +52,7 @@ public:
 
 class Subject {
 public:
-  Subject() = default;
+  Subject();
   Subject(const QVariantMap &v);
 
   QVariantMap toMap() const;
@@ -65,7 +65,7 @@ public:
 
 class OpenedAnswer {
 public:
-  OpenedAnswer() = default;
+  OpenedAnswer();
   OpenedAnswer(const QVariantMap &v);
 
   QVariantMap toMap() const;
@@ -78,7 +78,7 @@ public:
 
 class ClosedAnswer {
 public:
-  ClosedAnswer() = default;
+  ClosedAnswer();
   ClosedAnswer(const QVariantMap &v);
 
   QVariantMap toMap() const;

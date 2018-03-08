@@ -2,6 +2,10 @@
 
 namespace persistence {
 
+Form::Form()
+    : id(0)
+{}
+
 Form::Form(const QVariantMap &v) {
   id = v["id"].toInt();
   name = v["name"].toString();
@@ -17,6 +21,10 @@ QVariantMap Form::toMap() const {
           {"creation_date", creation_date},
           {"modification_date", modification_date}};
 }
+
+Question::Question()
+    : id(0), form(0), nb_words(0)
+{}
 
 Question::Question(const QVariantMap &v) {
   id = v["id"].toInt();
@@ -36,6 +44,10 @@ QVariantMap Question::toMap() const {
           {"modification_date", modification_date}};
 }
 
+Choice::Choice()
+    : id(0), question(0)
+{}
+
 Choice::Choice(const QVariantMap &v) {
   id = v["id"].toInt();
   question = v["question"].toInt();
@@ -49,6 +61,10 @@ QVariantMap Choice::toMap() const {
           {"label", label},
           {"modification_date", modification_date}};
 }
+
+Subject::Subject()
+    : id(0), form(0), is_valid(false)
+{}
 
 Subject::Subject(const QVariantMap &v) {
   id = v["id"].toInt();
@@ -64,6 +80,10 @@ QVariantMap Subject::toMap() const {
           {"modification_date", modification_date}};
 }
 
+OpenedAnswer::OpenedAnswer()
+    : subject(0), question(0)
+{}
+
 OpenedAnswer::OpenedAnswer(const QVariantMap &v) {
   subject = v["subject"].toInt();
   question = v["question"].toInt();
@@ -77,6 +97,10 @@ QVariantMap OpenedAnswer::toMap() const {
           {"words", words},
           {"modification_date", modification_date}};
 }
+
+ClosedAnswer::ClosedAnswer()
+    : subject(0), choice(0)
+{}
 
 ClosedAnswer::ClosedAnswer(const QVariantMap &v) {
   subject = v["subject"].toInt();
