@@ -3,8 +3,12 @@
 #include <persistence/SQLite/DAOFactory.hpp>
 #include <functional>
 
+#include <QFile>
+
 namespace semantics {
 namespace core {
+
+const QString DataServices::_dbUri = "database.db";
 
 DataServices::DataServices()
 {
@@ -16,9 +20,9 @@ DataServices::~DataServices()
 {
 }
 
-void DataServices::loadData(const QString &uri)
+void DataServices::loadData()
 {
-    resetDAO(uri);
+    resetDAO(_dbUri);
     resetSharedData();
     std::unique_ptr<Forms> forms = std::make_unique<Forms>(_formsSharedData);
 
@@ -92,9 +96,9 @@ void DataServices::loadData(const QString &uri)
     _forms = std::move(forms);
 }
 
-void DataServices::saveData(const QString &uri)
+void DataServices::saveData()
 {
-    resetDAO(uri);
+    resetDAO("temp.db");
     _dao_form->remove();
 
     for (const auto it_f : *_forms) {
@@ -181,6 +185,9 @@ void DataServices::saveData(const QString &uri)
             }
         }
     }
+
+    QFile::remove(_dbUri);
+    QFile::rename("temp.db", _dbUri);
 }
 
 QVariantMap DataServices::listForms()

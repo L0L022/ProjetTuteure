@@ -159,11 +159,7 @@ void UIServices::registerData() {
     insertFunction(QStringLiteral("loadData"), [this](const QVariantMap &args) -> QVariantMap {
         QVariantMap r;
         try {
-            if (args.contains("uri") && args.value("uri").canConvert<QString>()) {
-                _dataServices.loadData(args.value("uri").value<QString>());
-            } else {
-                r["error"] = "uri is missing or is not in the right type";
-            }
+            _dataServices.loadData();
         } catch(std::exception &e) {
             r["error"] = e.what();
         }
@@ -172,11 +168,7 @@ void UIServices::registerData() {
     insertFunction(QStringLiteral("saveData"), [this](const QVariantMap &args) -> QVariantMap {
         QVariantMap r;
         try {
-            if (args.contains("uri") && args.value("uri").canConvert<QString>()) {
-                _dataServices.saveData(args.value("uri").value<QString>());
-            } else {
-                r["error"] = "uri is missing or is not in the right type";
-            }
+            _dataServices.saveData();
         } catch(std::exception &e) {
             r["error"] = e.what();
         }

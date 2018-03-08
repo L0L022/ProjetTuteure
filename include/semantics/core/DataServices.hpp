@@ -16,8 +16,8 @@ public:
     DataServices();
     ~DataServices();
 
-    void loadData(const QString &uri);
-    void saveData(const QString &uri);
+    void loadData();
+    void saveData();
 
     QVariantMap listForms();
     QVariantMap listSubjects(const Id id);
@@ -48,6 +48,7 @@ private:
     ClosedQuestion::Choices::SharedDataPtr _choicesSharedData;
     Form::Subjects::SharedDataPtr _subjectsSharedData;
     std::unique_ptr<Forms> _forms;
+    static const QString _dbUri;
 
     std::unique_ptr<persistence::DAOFactory> _factory;
     std::unique_ptr<persistence::DAO<persistence::Form>> _dao_form;
