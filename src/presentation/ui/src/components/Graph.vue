@@ -1,90 +1,82 @@
 <template>
-<div class="Graph">
-  <el-row>
-    <el-col :span="1">
-      <el-slider
-        v-model="rangeVAxis"
-        range
-        vertical
-        show-stops
-        height="500px"
-        :min="0"
-        :max="100">
-      </el-slider>
-    </el-col>
-    <el-col :span="23">
-      <GGChart :chart-type="'ScatterChart'" :columns="columns" :rows="rows" :options="options"></GGChart>
-    </el-col>
-  </el-row>
-  <el-row>
-    <el-col :span="24">
-      <el-slider
-        v-model="rangeHAxis"
-        range
-        show-stops
-        :min="0"
-        :max="10">
-      </el-slider>
-    </el-col>
-  </el-row>
+<div>
+<vue-chart
+            :chart-type="chartType"
+            :columns="columns"
+            :rows="rows"
+            :options="options"
+        ></vue-chart>
+       <div class="block">
+    <el-slider v-model="value9" range="" show-stops >
+    </el-slider>
+  </div>
 </div>
 </template>
 
 <script>
-import GGChart from '@/assets/js/GGChart'
-
 export default {
-  name: 'Graph',
-  data: function () {
-    return {
-      columns: [{
-        'type': 'number',
-        'label': 'Rang'
-      }, {
-        'type': 'number',
-        'label': 'Seuil'
-      }],
-      rows: [
-        [4, 10],
-        [6, 20],
-        [2, 60],
-        [10, 90]
-      ],
-      options: {
-        title: 'Graphe simple',
-        hAxis: {
-          title: 'Rang',
-          viewWindow: {
-            min: 0,
-            max: 10
-          }
-        },
-        vAxis: {
-          title: 'Seuil',
-          viewWindow: {
-            min: 0,
-            max: 10
-          }
-        },
-        height: 500,
-        legend: 'none'
-      },
-      rangeHAxis: [0, 10],
-      rangeVAxis: [0, 100]
+  name: 'ListForm',
+  props: {
+    services: {
+      type: Object,
+      required: true
     }
+  },
+        data: function () {
+            return {
+                columns: [{
+                    'type': 'number',
+                    'label': 'Element'
+                }, {
+                    'type': 'number',
+                }, {
+                    'type': 'string',
+                    'role': 'annotation'
+                }],
+
+                chartType:'ScatterChart',
+
+
+                rows: [
+                    [8, 1, "dent: 0.05"],
+                    [8, 8, "dent: 0.02"]
+                ],
+
+                options: {
+                    title: 'Company Performance',
+                    hAxis: {
+                        title: 'Year',
+                        minValue: 0,
+                        maxValue: 10
+                    },
+                    vAxis: {
+                        title: '',
+                        minValue: 0,
+                        maxValue: 10
+                    },
+                    width: 500,
+                    height: 500,
+                    curveType: 'function'
+                },
+                 value9: [4, 8],
+                rangeVAxis: [0, 8]
+            }
+        },
+  created: function () {
+    this.refresh()
   },
   watch: {
-    rangeHAxis: function () {
-      this.options.hAxis.viewWindow.min = this.rangeHAxis[0]
-      this.options.hAxis.viewWindow.max = this.rangeHAxis[1]
-    },
-    rangeVAxis: function () {
-      this.options.vAxis.viewWindow.min = this.rangeVAxis[0]
-      this.options.vAxis.viewWindow.max = this.rangeVAxis[1]
-    }
-  },
-  components: {
-    GGChart
+  rangeHAxis: function(newV, oldV) {
+    this.options.hAxis.minValue = this.rangeHAxis[0]
+        this.options.hAxis.maxValue = this.rangeHAxis[1]
+  }
   }
 }
 </script>
+
+<style>
+    .block{
+        margin-left: 20%;
+        margin-right: 20%
+    }
+</style>
