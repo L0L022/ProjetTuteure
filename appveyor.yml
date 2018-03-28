@@ -23,7 +23,7 @@ configuration:
 install:
   - ps: Install-Product node $env:nodejs_version
   - set VCINSTALLDIR="C:\Program Files (x86)\Microsoft Visual Studio 15.0\VC\"
-  - set PATH=C:\Qt\5.10.0\msvc2017_64\bin;%PATH%
+  - set PATH=C:\Qt\5.10.1\msvc2017_64\bin;%PATH%
 
 cache:
   - src\presentation\ui\node_modules
