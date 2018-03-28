@@ -22,54 +22,53 @@ export default {
       required: true
     }
   },
-        data: function () {
-            return {
-                columns: [{
-                    'type': 'number',
-                    'label': 'Element'
-                }, {
-                    'type': 'number',
-                }, {
-                    'type': 'string',
-                    'role': 'annotation'
-                }],
+  data: function () {
+    return {
+      columns: [{
+        'type': 'number',
+        'label': 'Element'
+      }, {
+        'type': 'number'
+      }, {
+        'type': 'string',
+        'role': 'annotation'
+      }],
 
-                chartType:'ScatterChart',
+      chartType: 'ScatterChart',
 
+      rows: [
+        [8, 1, 'dent: 0.05'],
+        [8, 8, 'dent: 0.02']
+      ],
 
-                rows: [
-                    [8, 1, "dent: 0.05"],
-                    [8, 8, "dent: 0.02"]
-                ],
-
-                options: {
-                    title: 'Company Performance',
-                    hAxis: {
-                        title: 'Year',
-                        minValue: 0,
-                        maxValue: 10
-                    },
-                    vAxis: {
-                        title: '',
-                        minValue: 0,
-                        maxValue: 10
-                    },
-                    width: 500,
-                    height: 500,
-                    curveType: 'function'
-                },
-                 value9: [4, 8],
-                rangeVAxis: [0, 8]
-            }
+      options: {
+        title: 'Company Performance',
+        hAxis: {
+          title: 'Year',
+          minValue: 0,
+          maxValue: 10
         },
+        vAxis: {
+          title: '',
+          minValue: 0,
+          maxValue: 10
+        },
+        width: 500,
+        height: 500,
+        curveType: 'function'
+      },
+      value9: [4, 8],
+      rangeVAxis: [0, 8]
+    }
+  },
   created: function () {
     this.refresh()
   },
   watch: {
-  rangeHAxis: function(newV, oldV) {
-    this.options.hAxis.minValue = this.rangeHAxis[0]
-        this.options.hAxis.maxValue = this.rangeHAxis[1]
-  }
+    rangeHAxis: function (newV, oldV) {
+      this.options.hAxis.minValue = this.rangeHAxis[0]
+      this.options.hAxis.maxValue = this.rangeHAxis[1]
+    }
   }
 }
 </script>
