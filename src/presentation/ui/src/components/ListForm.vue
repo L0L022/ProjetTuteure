@@ -1,8 +1,8 @@
 <template>
 <div class="ListForm">
-  <h1>Vos formulaires</h1>
+  <h1>Vos enquêtes</h1>
   <el-table :data="Object.values(forms)" style="width: 100%" stripe>
-    <el-table-column type="selection" width="55">
+    <el-table-column label="N°" prop="id" width="55">
     </el-table-column>
     <el-table-column label="Nom" prop="name">
     </el-table-column>
@@ -11,16 +11,16 @@
     <el-table-column label="Opérations">
       <template slot-scope="scope">
        <el-button-group>
-         <el-tooltip content="Voir le formulaire">
+         <el-tooltip content="Voir l'enquête">
            <el-button @click="viewForm(scope.row.id)" type="primary" icon="el-icon-view"></el-button>
          </el-tooltip>
-         <el-tooltip content="Voir les réponses au formulaire">
+         <el-tooltip content="Voir les individus liés à l'enquête">
            <el-button @click="viewAnswers(scope.row.id)" type="primary" icon="el-icon-tickets"></el-button>
          </el-tooltip>
-         <el-tooltip content="Modifier le formulaire">
+         <el-tooltip content="Modifier l'enquête">
            <el-button @click="edit(scope.row.id)" type="primary" icon="el-icon-edit"></el-button>
          </el-tooltip>
-         <el-tooltip content="Supprimer le formulaire">
+         <el-tooltip content="Supprimer l'enquête">
            <el-button @click="remove(scope.row.id)" type="danger" icon="el-icon-delete"></el-button>
          </el-tooltip>
        </el-button-group>
@@ -28,7 +28,7 @@
     </el-table-column>
   </el-table>
   <div style="margin-top: 20px">
-    <el-button @click="add()" type="primary">Ajouter un formulaire</el-button>
+    <el-button @click="add()" type="primary">Ajouter une enquête</el-button>
   </div>
 </div>
 </template>

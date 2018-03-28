@@ -14,10 +14,10 @@
   </el-table>
   <div style="margin-top: 20px">
     <el-col :span="16">
-      <el-input @keyup.native.enter="add()" placeholder="Label du nouveau choix" v-model="new_choice"></el-input>
+      <el-input @keyup.native.enter="add()" placeholder="Label de la nouvelle modalité" v-model="new_choice"></el-input>
     </el-col>
     <el-col :span="8">
-      <el-button @click="add()" type="primary">Ajouter un choix</el-button>
+      <el-button @click="add()" type="primary">Ajouter une modalité</el-button>
     </el-col>
   </div>
 </div>

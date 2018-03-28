@@ -1,6 +1,6 @@
 <template>
-<div class="AnswerForm" v-if="!loading">
-  <h1>Édition du sujet n°{{ subject.id }} du formulaire n°{{ form.id }}</h1> Nom : {{ form.name }}<br> Description : {{ form.description }}<br> Est validé :
+<div class="AnswerForm">
+  <h1>Édition de l'individu n°{{ subject.id }} de l'enquête n°{{ form.id }}</h1> Nom : {{ form.name }}<br> Description : {{ form.description }}<br> Est validé :
   <el-switch v-model="subject.is_valid"></el-switch><br>
   <el-table :data="Object.values(form.questions)" default-expand-all style="width: 100%">
     <el-table-column type="expand">
@@ -38,11 +38,11 @@ export default {
     return {
       types: [{
         value: 'multiple',
-        label: 'Choix multiple'
+        label: 'Multiple'
       },
       {
         value: 'unique',
-        label: 'Choix unique'
+        label: 'Unique'
       },
       {
         value: 'opened',
@@ -102,20 +102,26 @@ export default {
     save: function () {
       console.log('Save : ' + JSON.stringify(this.subject))
       var me = this
-      if (this.subject.id === 'new') {
-        this.services.call('takeSubjectId', {}, function (data) {
-          me.subject.id = data['id']
-          me.services.call('saveSubject', {form: me.form.id, subject: me.subject}, function (data) {
-            me.$router.replace({
-              name: 'AnswerForm',
-              params: {
-                id: me.subject.id
-              }
-            })
+      if (this.subjectId === 'new') {
+        me.services.call('saveSubject', {form: me.form.id, subject: me.subject}, function (data) {
+          me.$message({
+            message: 'Le nouvel individu a bien été sauvegardé.',
+            type: 'success'
+          })
+
+          me.$router.replace({
+            name: 'AnswerForm',
+            params: {
+              id: me.subject.id
+            }
           })
         })
       } else {
         this.services.call('saveSubject', {form: me.form.id, subject: me.subject}, function (data) {
+          me.$message({
+            message: 'L\'individu a bien été enregistré.',
+            type: 'success'
+          })
           me.refresh()
         })
       }

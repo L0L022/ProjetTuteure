@@ -1,8 +1,8 @@
 <template>
 <div class="ListSubject">
-  <h1>Les réponses au formulaire n°{{ id }}</h1>
+  <h1>Les individus de l'enquête n°{{ id }}</h1>
   <el-table :data="Object.values(subjects)" style="width: 100%" stripe>
-    <el-table-column type="selection" width="55">
+    <el-table-column label="N°" prop="id" width="55">
     </el-table-column>
     <el-table-column label="Status">
       <template slot-scope="scope">
@@ -19,7 +19,7 @@
     </el-table-column>
   </el-table>
   <div style="margin-top: 20px">
-    <el-button @click="add()" type="primary">Ajouter une réponse</el-button>
+    <el-button @click="add()" type="primary">Ajouter un individu</el-button>
   </div>
 </div>
 </template>

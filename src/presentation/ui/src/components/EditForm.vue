@@ -1,11 +1,11 @@
 <template>
 <div class="EditForm">
-  <h1 v-if="form.id === 'new'">Édition d'un nouveau formulaire</h1>
-  <h1 v-if="form.id !== 'new'">Édition du formulaire n°{{ form.id }}</h1>
+  <h1 v-if="form.id === 'new'">Édition d'une nouvelle enquête</h1>
+  <h1 v-if="form.id !== 'new'">Édition de l'enquête n°{{ form.id }}</h1>
   <el-input placeholder="Nom" v-model="form.name"></el-input>
   <el-input placeholder="Description" v-model="form.description"></el-input>
   <el-table :data="Object.values(form.questions)" default-expand-all style="width: 100%">
-    <el-table-column type="selection" width="55">
+    <el-table-column label="N°" prop="id" width="55">
     </el-table-column>
     <el-table-column type="expand">
       <template slot-scope="scope">
@@ -71,11 +71,11 @@ export default {
     return {
       types: [{
         value: 'multiple',
-        label: 'Choix multiple'
+        label: 'Modalité multiple'
       },
       {
         value: 'unique',
-        label: 'Choix unique'
+        label: 'Modalité unique'
       },
       {
         value: 'opened',
@@ -135,7 +135,7 @@ export default {
           me.form.id = data['id']
           me.services.call('saveForm', me.form, function (data) {
             me.$message({
-              message: 'Le nouveau formulaire a bien été sauvegardé.',
+              message: 'La nouvelle enquête a bien été sauvegardé.',
               type: 'success'
             })
 
@@ -150,7 +150,7 @@ export default {
       } else {
         this.services.call('saveForm', this.form, function (data) {
           me.$message({
-            message: 'Le formulaire a bien été enregistrer.',
+            message: 'L\'enquête a bien été enregistré.',
             type: 'success'
           })
           me.refresh()
