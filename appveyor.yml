@@ -35,7 +35,7 @@ test_script:
 before_build:
     - mkdir build
     - cd build
-    - cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_PREFIX_PATH="C:\\Qt\\5.10.0\\msvc2017_64" -DBOOST_ROOT="C:\\Libraries\\boost_1_65_1" ..
+    - cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_PREFIX_PATH="C:\\Qt\\5.10.1\\msvc2017_64" -DBOOST_ROOT="C:\\Libraries\\boost_1_65_1" ..
     - cd ..
 
 build:
